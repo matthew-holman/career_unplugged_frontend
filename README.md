@@ -1,4 +1,4 @@
-# job-scraper-frontend (job-scraper-frontend)
+# career_unplugged-frontend
 
 frontend for viewing scraped job results
 

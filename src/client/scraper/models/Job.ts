@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type JobRead = {
+export type Job = {
     createdAt?: (string | null);
     updatedAt?: (string | null);
     deletedAt?: (string | null);
@@ -16,6 +16,6 @@ export type JobRead = {
     applied?: boolean;
     remote?: (boolean | null);
     analysed?: boolean;
-    id: number;
+    id?: number;
 };
 
