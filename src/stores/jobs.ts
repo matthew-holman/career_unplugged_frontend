@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia';
 import { useMainStore as mainStore } from 'src/stores/main-store';
 import { Notify } from 'quasar';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ApiError, JobRead, JobService, OpenAPI } from 'src/client/scraper';
+import { apiUrl } from 'src/env';
 
-OpenAPI.BASE = process.env.API_URL;
+OpenAPI.BASE = apiUrl;
 
 interface JobState {
   jobs: JobRead[];
@@ -32,6 +34,8 @@ export const useJobStore = defineStore('jobStore', {
         color: 'primary',
       });
       try {
+        console.log(process.env)
+
         const response = await JobService.listJobsJobGet(
           title,
           company,
@@ -52,6 +56,6 @@ export const useJobStore = defineStore('jobStore', {
       } catch (error: ApiError | unknown) {
         await mainStore().checkApiError(error, notification);
       }
-    },
-  },
+    }
+  }
 });

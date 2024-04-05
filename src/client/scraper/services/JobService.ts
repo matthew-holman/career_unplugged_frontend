@@ -56,7 +56,7 @@ export class JobService {
         applied?: (boolean | null),
         remote?: (boolean | null),
         analysed?: (boolean | null),
-    ): CancelablePromise<Array<Job>> {
+    ): CancelablePromise<Array<JobRead>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/job/',

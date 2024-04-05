@@ -1,9 +1,7 @@
 <template>
   <q-item
     clickable
-    tag="a"
-    target="_blank"
-    :href="link"
+    @click="$router.push(link)"
   >
     <q-item-section
       v-if="icon"
@@ -21,17 +19,17 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'EssentialLink'
+  name: 'MenuLink'
 });
 
-export interface EssentialLinkProps {
+export interface MenuLinkProps {
   title: string;
   caption?: string;
   link?: string;
   icon?: string;
 };
 
-withDefaults(defineProps<EssentialLinkProps>(), {
+withDefaults(defineProps<MenuLinkProps>(), {
   caption: '',
   link: '#',
   icon: '',

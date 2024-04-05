@@ -13,17 +13,17 @@ export const useMainStore = defineStore('mainStore', {
   },
   actions: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async checkApiError(error: ApiError | AxiosError, notification?: any) {
+    async checkApiError(error: ApiError | AxiosError | unknown, notification?: any) {
       if (error instanceof ApiError || error.name === 'ApiError') {
         const notificationOptions = {
           type: 'negative',
           color: 'negative',
-          message: error.body ?? error.statusText,
+          message: error,
         };
         if (typeof notification !== 'undefined') {
           notification(notificationOptions);
         } else {
-          Notify.create(notificationOptions);
+          Notify.create(String(notificationOptions));
         }
       } else {
         notification({
