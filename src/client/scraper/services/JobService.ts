@@ -43,7 +43,7 @@ export class JobService {
      * @param country
      * @param city
      * @param applied
-     * @param remote
+     * @param true_remote
      * @param analysed
      * @returns Job Successful Response
      * @throws ApiError
@@ -54,7 +54,7 @@ export class JobService {
         country?: (string | null),
         city?: (string | null),
         applied?: (boolean | null),
-        remote?: (boolean | null),
+        true_remote?: (boolean | null),
         analysed?: (boolean | null),
     ): CancelablePromise<Array<JobRead>> {
         return __request(OpenAPI, {
@@ -66,7 +66,7 @@ export class JobService {
                 'country': country,
                 'city': city,
                 'applied': applied,
-                'remote': remote,
+                'true_remote': true_remote,
                 'analysed': analysed,
             },
             errors: {

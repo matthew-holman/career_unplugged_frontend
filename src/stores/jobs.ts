@@ -25,7 +25,7 @@ export const useJobStore = defineStore('jobStore', {
       country?: string,
       city?: string,
       applied?: boolean,
-      remote?: boolean,
+      true_remote?: boolean,
       analysed?: boolean,
     ) {
       const notification = Notify.create({
@@ -42,7 +42,7 @@ export const useJobStore = defineStore('jobStore', {
           country,
           city,
           applied,
-          remote,
+          true_remote,
           analysed,
         );
         if (response) {

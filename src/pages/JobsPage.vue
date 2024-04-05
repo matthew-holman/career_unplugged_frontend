@@ -7,6 +7,13 @@
       row-key="name"
       data-cy="breaksTable"
     >
+      <template v-slot:top>
+        <div style="width: 100%" class="row">
+          <div class="col-9">
+            <q-toggle v-model="jobTableParams.true_remote" label="True Remote" @update:model-value="fetchJobs"/>
+          </div>
+        </div>
+      </template>
     </q-table>
   </div>
 </template>
@@ -27,7 +34,7 @@ interface JobTableParams {
   country?: string,
   city?: string;
   applied?: boolean;
-  remote?: boolean;
+  true_remote?: boolean;
   analysed?: boolean;
   offset?: number;
   limit?: number;
@@ -40,13 +47,14 @@ const tableColumns: QTableColumn[] = [
     name: 'title',
     label: 'Role Title',
     field: 'title',
-    sortable: true
+    sortable: true,
+    align: 'left'
   },
-  { name: 'company', align: 'center', label: 'Company', field: 'company', sortable: true },
-  { name: 'country', label: 'Country', field: 'country', sortable: true },
-  { name: 'city', label: 'City', field: 'city', sortable: true },
-  { name: 'applied', label: 'Applied', field: 'applied', sortable: true },
-  { name: 'remote', label: 'Remote', field: 'remote', sortable: true},
+  { name: 'company', label: 'Company', field: 'company', sortable: true, align: 'left' },
+  { name: 'country', label: 'Country', field: 'country', sortable: true, align: 'left' },
+  { name: 'city', label: 'City', field: 'city', sortable: true, align: 'left' },
+  { name: 'applied', label: 'Applied', field: 'applied', sortable: true, align: 'center'  },
+  { name: 'true_remote', label: 'True Remote', field: 'trueRemote', sortable: true, align: 'center' },
   { name: 'analysed', label: 'Analysed', field: 'analysed', sortable: true}
 ]
 
@@ -57,7 +65,7 @@ let jobTableParams: JobTableParams = reactive({
   country: undefined,
   city: undefined,
   applied: undefined,
-  remote: undefined,
+  true_remote: undefined,
   analysed: undefined,
   offset: 0,
   limit: 1000,
@@ -75,7 +83,7 @@ async function fetchJobs(): Promise<void> {
       jobTableParams.country,
       jobTableParams.city,
       jobTableParams.applied,
-      jobTableParams.remote,
+      jobTableParams.true_remote,
       jobTableParams.analysed,
     );
   jobs.value = jobStore.jobs;
