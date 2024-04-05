@@ -26,7 +26,7 @@ export const useJobStore = defineStore('jobStore', {
       city?: string,
       applied?: boolean,
       true_remote?: boolean,
-      analysed?: boolean,
+      analysed?: boolean
     ) {
       const notification = Notify.create({
         message: 'Fetching Jobs',
@@ -34,7 +34,7 @@ export const useJobStore = defineStore('jobStore', {
         color: 'primary',
       });
       try {
-        console.log(process.env)
+        console.log(process.env);
 
         const response = await JobService.listJobsJobGet(
           title,
@@ -43,7 +43,7 @@ export const useJobStore = defineStore('jobStore', {
           city,
           applied,
           true_remote,
-          analysed,
+          analysed
         );
         if (response) {
           this.jobs = response;
@@ -56,6 +56,6 @@ export const useJobStore = defineStore('jobStore', {
       } catch (error: ApiError | unknown) {
         await mainStore().checkApiError(error, notification);
       }
-    }
-  }
+    },
+  },
 });

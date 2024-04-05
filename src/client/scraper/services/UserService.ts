@@ -9,23 +9,21 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class UserService {
-
-    /**
-     * Get User
-     * @returns User Successful Response
-     * @throws ApiError
-     */
-    public static getUserUserGet(): CancelablePromise<User> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/user/',
-            errors: {
-                400: `Bad Request`,
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-
+  /**
+   * Get User
+   * @returns User Successful Response
+   * @throws ApiError
+   */
+  public static getUserUserGet(): CancelablePromise<User> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/user/',
+      errors: {
+        400: `Bad Request`,
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
 }

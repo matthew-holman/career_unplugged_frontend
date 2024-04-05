@@ -1,12 +1,6 @@
 <template>
-  <q-item
-    clickable
-    @click="$router.push(link)"
-  >
-    <q-item-section
-      v-if="icon"
-      avatar
-    >
+  <q-item clickable @click="$router.push(link)">
+    <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>
 
@@ -19,7 +13,7 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'MenuLink'
+  name: 'MenuLink',
 });
 
 export interface MenuLinkProps {
@@ -27,7 +21,7 @@ export interface MenuLinkProps {
   caption?: string;
   link?: string;
   icon?: string;
-};
+}
 
 withDefaults(defineProps<MenuLinkProps>(), {
   caption: '',

@@ -3,7 +3,6 @@ import { Notify } from 'quasar';
 import { AxiosError } from 'axios';
 import { ApiError } from 'src/client/scraper';
 
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MainState {}
 
@@ -13,7 +12,10 @@ export const useMainStore = defineStore('mainStore', {
   },
   actions: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async checkApiError(error: ApiError | AxiosError | unknown, notification?: any) {
+    async checkApiError(
+      error: ApiError | AxiosError | unknown,
+      notification?: any
+    ) {
       if (error instanceof ApiError || error.name === 'ApiError') {
         const notificationOptions = {
           type: 'negative',

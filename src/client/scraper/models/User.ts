@@ -4,11 +4,10 @@
 /* eslint-disable */
 
 export type User = {
-    createdAt?: (string | null);
-    updatedAt?: (string | null);
-    deletedAt?: (string | null);
-    deleted?: boolean;
-    email?: string;
-    name: string;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  deletedAt?: string | null;
+  deleted?: boolean;
+  email?: string;
+  name: string;
 };
-

@@ -11,31 +11,17 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-toolbar-title> Quasar App </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+        <q-item-label header> Essential Links </q-item-label>
 
-        <MenuLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <MenuLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
@@ -50,7 +36,7 @@ import { ref } from 'vue';
 import MenuLink, { MenuLinkProps } from 'components/MenuLink.vue';
 
 defineOptions({
-  name: 'MainLayout'
+  name: 'MainLayout',
 });
 
 const linksList: MenuLinkProps[] = [
@@ -58,13 +44,13 @@ const linksList: MenuLinkProps[] = [
     title: 'Jobs',
     caption: 'list of jobs',
     icon: 'school',
-    link: '/jobs'
+    link: '/jobs',
   },
 ];
 
 const leftDrawerOpen = ref(false);
 
-function toggleLeftDrawer () {
+function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 </script>

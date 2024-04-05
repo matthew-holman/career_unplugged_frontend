@@ -10,7 +10,11 @@
       <template v-slot:top>
         <div style="width: 100%" class="row">
           <div class="col-9">
-            <q-toggle v-model="jobTableParams.true_remote" label="True Remote" @update:model-value="fetchJobs"/>
+            <q-toggle
+              v-model="jobTableParams.true_remote"
+              label="True Remote"
+              @update:model-value="fetchJobs"
+            />
           </div>
         </div>
       </template>
@@ -31,7 +35,7 @@ onMounted(() => {
 interface JobTableParams {
   title?: string;
   company?: string;
-  country?: string,
+  country?: string;
   city?: string;
   applied?: boolean;
   true_remote?: boolean;
@@ -48,15 +52,39 @@ const tableColumns: QTableColumn[] = [
     label: 'Role Title',
     field: 'title',
     sortable: true,
-    align: 'left'
+    align: 'left',
   },
-  { name: 'company', label: 'Company', field: 'company', sortable: true, align: 'left' },
-  { name: 'country', label: 'Country', field: 'country', sortable: true, align: 'left' },
+  {
+    name: 'company',
+    label: 'Company',
+    field: 'company',
+    sortable: true,
+    align: 'left',
+  },
+  {
+    name: 'country',
+    label: 'Country',
+    field: 'country',
+    sortable: true,
+    align: 'left',
+  },
   { name: 'city', label: 'City', field: 'city', sortable: true, align: 'left' },
-  { name: 'applied', label: 'Applied', field: 'applied', sortable: true, align: 'center'  },
-  { name: 'true_remote', label: 'True Remote', field: 'trueRemote', sortable: true, align: 'center' },
-  { name: 'analysed', label: 'Analysed', field: 'analysed', sortable: true}
-]
+  {
+    name: 'applied',
+    label: 'Applied',
+    field: 'applied',
+    sortable: true,
+    align: 'center',
+  },
+  {
+    name: 'true_remote',
+    label: 'True Remote',
+    field: 'trueRemote',
+    sortable: true,
+    align: 'center',
+  },
+  { name: 'analysed', label: 'Analysed', field: 'analysed', sortable: true },
+];
 
 let jobs: Ref<JobRead[]> = ref([]);
 let jobTableParams: JobTableParams = reactive({
@@ -76,17 +104,15 @@ let pagination = ref({
 });
 
 async function fetchJobs(): Promise<void> {
-
-    await jobStore.listJobs(
-      jobTableParams.title,
-      jobTableParams.company,
-      jobTableParams.country,
-      jobTableParams.city,
-      jobTableParams.applied,
-      jobTableParams.true_remote,
-      jobTableParams.analysed,
-    );
+  await jobStore.listJobs(
+    jobTableParams.title,
+    jobTableParams.company,
+    jobTableParams.country,
+    jobTableParams.city,
+    jobTableParams.applied,
+    jobTableParams.true_remote,
+    jobTableParams.analysed
+  );
   jobs.value = jobStore.jobs;
 }
-
 </script>
