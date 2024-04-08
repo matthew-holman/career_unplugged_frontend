@@ -3,7 +3,13 @@
     <!-- Jobs List occupying 50% of the width on the left -->
     <div class="col-6 job-list">
       <q-list bordered class="scrollable-section">
-        <q-item v-for="job in jobs" :key="job.id" class="q-my-sm" clickable v-ripple>
+        <q-item
+          v-for="job in jobs"
+          :key="job.id"
+          class="q-my-sm"
+          clickable
+          v-ripple
+        >
           <q-item-section avatar>
             <q-avatar color="primary" text-color="white">
               <q-icon name="work_outline" />
@@ -13,12 +19,21 @@
           <q-item-section>
             <q-item-label>{{ job.title }}</q-item-label>
             <q-item-label caption>{{ job.company }}</q-item-label>
-            <q-item-label caption>{{ job.country }}, {{ job.city }}</q-item-label>
-            <q-item-label caption>Listing remote status {{ RemoteStatus[job.listingRemote] }}</q-item-label>
+            <q-item-label caption
+              >{{ job.country }}, {{ job.city }}</q-item-label
+            >
+            <q-item-label caption
+              >Listing remote status
+              {{ RemoteStatus[job.listingRemote] }}</q-item-label
+            >
           </q-item-section>
 
           <q-item-section side top>
-            <q-btn flat icon="launch" @click.stop="openLinkInNewTab(job.linkedinUrl)" />
+            <q-btn
+              flat
+              icon="launch"
+              @click.stop="openLinkInNewTab(job.linkedinUrl)"
+            />
           </q-item-section>
         </q-item>
 
@@ -33,20 +48,24 @@
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox v-model="jobListParams.trueRemote" @update:model-value="fetchJobs" />
+            <q-checkbox
+              v-model="jobListParams.trueRemote"
+              @update:model-value="fetchJobs"
+            />
           </q-item-section>
 
           <q-item-section>
             <q-item-label>True Remote</q-item-label>
-            <q-item-label caption>
-              Show only truly remote jobs
-            </q-item-label>
+            <q-item-label caption> Show only truly remote jobs </q-item-label>
           </q-item-section>
         </q-item>
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox v-model="jobListParams.positiveKeywordMatch" @update:model-value="fetchJobs" />
+            <q-checkbox
+              v-model="jobListParams.positiveKeywordMatch"
+              @update:model-value="fetchJobs"
+            />
           </q-item-section>
 
           <q-item-section>
@@ -59,14 +78,15 @@
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox v-model="jobListParams.recent" @update:model-value="fetchJobs" />
+            <q-checkbox
+              v-model="jobListParams.recent"
+              @update:model-value="fetchJobs"
+            />
           </q-item-section>
 
           <q-item-section>
             <q-item-label>Recent Results</q-item-label>
-            <q-item-label caption>
-              Show only recent job postings
-            </q-item-label>
+            <q-item-label caption> Show only recent job postings </q-item-label>
           </q-item-section>
         </q-item>
 
@@ -75,10 +95,15 @@
         <q-item-label header>Country Search</q-item-label>
         <q-item>
           <q-item-section>
-            <q-input v-model="jobListParams.country" filled debounce="300" @update:model-value="fetchJobs" placeholder="Type to search country..." />
+            <q-input
+              v-model="jobListParams.country"
+              filled
+              debounce="300"
+              @update:model-value="fetchJobs"
+              placeholder="Type to search country..."
+            />
           </q-item-section>
         </q-item>
-
       </q-list>
     </div>
   </div>
@@ -86,7 +111,18 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { QList, QItem, QItemSection, QItemLabel, QAvatar, QIcon, QBtn, QSeparator, QCheckbox, QInput } from 'quasar';
+import {
+  QList,
+  QItem,
+  QItemSection,
+  QItemLabel,
+  QAvatar,
+  QIcon,
+  QBtn,
+  QSeparator,
+  QCheckbox,
+  QInput,
+} from 'quasar';
 import { useJobStore } from 'stores/jobs';
 import { JobRead } from 'src/client/scraper';
 
@@ -114,7 +150,6 @@ let jobListParams = reactive({
 onMounted(() => {
   fetchJobs();
 });
-
 
 async function fetchJobs(): Promise<void> {
   await jobStore.listJobs(jobListParams);

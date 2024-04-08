@@ -21,7 +21,7 @@ export interface JobListParams {
   positiveKeywordMatch?: boolean;
   negativeKeywordMatch?: boolean;
   analysed?: boolean;
-  recent?: boolean,
+  recent?: boolean;
   offset?: number;
   limit?: number;
 }
@@ -41,7 +41,6 @@ export const useJobStore = defineStore('jobStore', {
         color: 'primary',
       });
       try {
-
         const response = await JobService.listJobsJobGet(
           listParams.title,
           listParams.company,
