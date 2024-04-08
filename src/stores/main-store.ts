@@ -16,7 +16,7 @@ export const useMainStore = defineStore('mainStore', {
       error: ApiError | AxiosError | unknown,
       notification?: any
     ) {
-      if (error instanceof ApiError || error.name === 'ApiError') {
+      if ((error as ApiError).name === 'ApiError') {
         const notificationOptions = {
           type: 'negative',
           color: 'negative',
@@ -31,7 +31,7 @@ export const useMainStore = defineStore('mainStore', {
         notification({
           type: 'negative',
           color: 'negative',
-          message: error.message,
+          message: (error as ApiError).message,
         });
       }
     },

@@ -10,8 +10,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Job } from './models/Job';
 export type { JobRead } from './models/JobRead';
-export type { User } from './models/User';
+export { RemoteStatus } from './models/RemoteStatus';
 export type { ValidationError } from './models/ValidationError';
 
 export { JobService } from './services/JobService';
-export { UserService } from './services/UserService';

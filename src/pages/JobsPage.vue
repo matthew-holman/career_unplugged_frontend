@@ -1,118 +1,143 @@
 <template>
-  <div class="q-pa-md">
-    <q-table
-      :rows="jobs"
-      :columns="tableColumns"
-      :pagination="pagination"
-      row-key="name"
-      data-cy="breaksTable"
-    >
-      <template v-slot:top>
-        <div style="width: 100%" class="row">
-          <div class="col-9">
-            <q-toggle
-              v-model="jobTableParams.true_remote"
-              label="True Remote"
-              @update:model-value="fetchJobs"
-            />
-          </div>
-        </div>
-      </template>
-    </q-table>
+  <div class="q-pa-md row full-width">
+    <!-- Jobs List occupying 50% of the width on the left -->
+    <div class="col-6 job-list">
+      <q-list bordered class="scrollable-section">
+        <q-item v-for="job in jobs" :key="job.id" class="q-my-sm" clickable v-ripple>
+          <q-item-section avatar>
+            <q-avatar color="primary" text-color="white">
+              <q-icon name="work_outline" />
+            </q-avatar>
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ job.title }}</q-item-label>
+            <q-item-label caption>{{ job.company }}</q-item-label>
+            <q-item-label caption>{{ job.country }}, {{ job.city }}</q-item-label>
+            <q-item-label caption>Listing remote status {{ RemoteStatus[job.listingRemote] }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side top>
+            <q-btn flat icon="launch" @click.stop="openLinkInNewTab(job.linkedinUrl)" />
+          </q-item-section>
+        </q-item>
+
+        <q-separator />
+      </q-list>
+    </div>
+
+    <!-- Filters and Search occupying the right 50% -->
+    <div class="col-6 filter-section" style="max-width: 350px">
+      <q-list bordered padding>
+        <q-item-label header>Job Filters</q-item-label>
+
+        <q-item clickable v-ripple tag="label">
+          <q-item-section side top>
+            <q-checkbox v-model="jobListParams.trueRemote" @update:model-value="fetchJobs" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>True Remote</q-item-label>
+            <q-item-label caption>
+              Show only truly remote jobs
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple tag="label">
+          <q-item-section side top>
+            <q-checkbox v-model="jobListParams.positiveKeywordMatch" @update:model-value="fetchJobs" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Positive Match</q-item-label>
+            <q-item-label caption>
+              Jobs with positive keyword matches
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple tag="label">
+          <q-item-section side top>
+            <q-checkbox v-model="jobListParams.recent" @update:model-value="fetchJobs" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Recent Results</q-item-label>
+            <q-item-label caption>
+              Show only recent job postings
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator spaced />
+
+        <q-item-label header>Country Search</q-item-label>
+        <q-item>
+          <q-item-section>
+            <q-input v-model="jobListParams.country" filled debounce="300" @update:model-value="fetchJobs" placeholder="Type to search country..." />
+          </q-item-section>
+        </q-item>
+
+      </q-list>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, Ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { QList, QItem, QItemSection, QItemLabel, QAvatar, QIcon, QBtn, QSeparator, QCheckbox, QInput } from 'quasar';
 import { useJobStore } from 'stores/jobs';
 import { JobRead } from 'src/client/scraper';
-import { QTableColumn } from 'quasar';
 
-onMounted(() => {
-  fetchJobs();
-});
-
-interface JobTableParams {
-  title?: string;
-  company?: string;
-  country?: string;
-  city?: string;
-  applied?: boolean;
-  true_remote?: boolean;
-  analysed?: boolean;
-  offset?: number;
-  limit?: number;
+enum RemoteStatus {
+  ONSITE = 1,
+  HYBRID = 3,
+  REMOTE = 2,
 }
 
 const jobStore = useJobStore();
-
-const tableColumns: QTableColumn[] = [
-  {
-    name: 'title',
-    label: 'Role Title',
-    field: 'title',
-    sortable: true,
-    align: 'left',
-  },
-  {
-    name: 'company',
-    label: 'Company',
-    field: 'company',
-    sortable: true,
-    align: 'left',
-  },
-  {
-    name: 'country',
-    label: 'Country',
-    field: 'country',
-    sortable: true,
-    align: 'left',
-  },
-  { name: 'city', label: 'City', field: 'city', sortable: true, align: 'left' },
-  {
-    name: 'applied',
-    label: 'Applied',
-    field: 'applied',
-    sortable: true,
-    align: 'center',
-  },
-  {
-    name: 'true_remote',
-    label: 'True Remote',
-    field: 'trueRemote',
-    sortable: true,
-    align: 'center',
-  },
-  { name: 'analysed', label: 'Analysed', field: 'analysed', sortable: true },
-];
-
-let jobs: Ref<JobRead[]> = ref([]);
-let jobTableParams: JobTableParams = reactive({
+let jobs = ref<JobRead[]>([]);
+let jobListParams = reactive({
   title: undefined,
   company: undefined,
   country: undefined,
   city: undefined,
   applied: undefined,
-  true_remote: undefined,
-  analysed: undefined,
+  trueRemote: undefined,
+  positiveKeywordMatch: undefined,
+  recent: undefined,
   offset: 0,
   limit: 1000,
 });
-let pagination = ref({
-  page: 1,
-  rowsPerPage: 50,
+
+onMounted(() => {
+  fetchJobs();
 });
 
+
 async function fetchJobs(): Promise<void> {
-  await jobStore.listJobs(
-    jobTableParams.title,
-    jobTableParams.company,
-    jobTableParams.country,
-    jobTableParams.city,
-    jobTableParams.applied,
-    jobTableParams.true_remote,
-    jobTableParams.analysed
-  );
+  await jobStore.listJobs(jobListParams);
   jobs.value = jobStore.jobs;
 }
+
+function openLinkInNewTab(url: string) {
+  window.open(url, '_blank');
+}
 </script>
+
+<style>
+.full-width {
+  width: 100%;
+}
+.job-list {
+  margin-right: 20px; /* Adds space between the job list and the filter section */
+}
+.filter-section {
+  max-width: 350px; /* Adjust if necessary */
+}
+.scrollable-section {
+  max-height: 90vh; /* Adjust based on your layout needs */
+  overflow-y: auto; /* Makes the section scrollable */
+}
+</style>

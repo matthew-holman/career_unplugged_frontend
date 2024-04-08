@@ -11,6 +11,21 @@ interface JobState {
   jobs: JobRead[];
 }
 
+export interface JobListParams {
+  title?: string;
+  company?: string;
+  country?: string;
+  city?: string;
+  applied?: boolean;
+  trueRemote?: boolean;
+  positiveKeywordMatch?: boolean;
+  negativeKeywordMatch?: boolean;
+  analysed?: boolean;
+  recent?: boolean,
+  offset?: number;
+  limit?: number;
+}
+
 export const useJobStore = defineStore('jobStore', {
   state: () => {
     return {
@@ -19,31 +34,25 @@ export const useJobStore = defineStore('jobStore', {
   },
   getters: {},
   actions: {
-    async listJobs(
-      title?: string,
-      company?: string,
-      country?: string,
-      city?: string,
-      applied?: boolean,
-      true_remote?: boolean,
-      analysed?: boolean
-    ) {
+    async listJobs(listParams: JobListParams) {
       const notification = Notify.create({
         message: 'Fetching Jobs',
         type: 'ongoing',
         color: 'primary',
       });
       try {
-        console.log(process.env);
 
         const response = await JobService.listJobsJobGet(
-          title,
-          company,
-          country,
-          city,
-          applied,
-          true_remote,
-          analysed
+          listParams.title,
+          listParams.company,
+          listParams.country,
+          listParams.city,
+          listParams.applied,
+          listParams.positiveKeywordMatch,
+          listParams.negativeKeywordMatch,
+          listParams.trueRemote,
+          listParams.analysed,
+          listParams.recent
         );
         if (response) {
           this.jobs = response;

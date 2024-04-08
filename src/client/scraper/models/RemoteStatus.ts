@@ -3,9 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type ValidationError = {
-    loc: Array<(string | number)>;
-    msg: string;
-    type: string;
-};
-
+export enum RemoteStatus {
+    '_1' = 1,
+    '_3' = 3,
+    '_2' = 2,
+}
