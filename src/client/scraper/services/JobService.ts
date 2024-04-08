@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Job } from '../models/Job';
 import type { JobRead } from '../models/JobRead';
+import type { RemoteStatus } from '../models/RemoteStatus';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -45,6 +46,7 @@ export class JobService {
    * @param trueRemote
    * @param analysed
    * @param recent
+   * @param listingRemote
    * @returns Job Successful Response
    * @throws ApiError
    */
@@ -58,7 +60,8 @@ export class JobService {
     negativeKeywordMatch?: boolean | null,
     trueRemote?: boolean | null,
     analysed?: boolean | null,
-    recent?: boolean | null
+    recent?: boolean | null,
+    listingRemote?: RemoteStatus | null
   ): CancelablePromise<Array<Job>> {
     return __request(OpenAPI, {
       method: 'GET',
@@ -74,6 +77,7 @@ export class JobService {
         true_remote: trueRemote,
         analysed: analysed,
         recent: recent,
+        listing_remote: listingRemote,
       },
       errors: {
         400: `Bad Request`,

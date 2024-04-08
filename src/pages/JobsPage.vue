@@ -22,10 +22,10 @@
             <q-item-label caption
               >{{ job.country }}, {{ job.city }}</q-item-label
             >
-            <q-item-label caption
-              >Listing remote status
-              {{ RemoteStatus[job.listingRemote] }}</q-item-label
-            >
+            <q-item-label caption>
+              Listing remote status
+              {{ job.listingRemote != null ? RemoteStatus[job.listingRemote] : 'not set' }}
+            </q-item-label>
           </q-item-section>
 
           <q-item-section side top>
@@ -90,6 +90,18 @@
           </q-item-section>
         </q-item>
 
+        <q-select
+          standout
+          v-model="jobListParams.listingRemote"
+          :options="remoteStatusOptions"
+          option-value="value"
+          option-label="name"
+          label="LinkedIn remote status"
+          emit-value
+          map-options
+          @update:model-value="fetchJobs"
+        />
+
         <q-separator spaced />
 
         <q-item-label header>Country Search</q-item-label>
@@ -110,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import {
   QList,
   QItem,
@@ -132,6 +144,13 @@ enum RemoteStatus {
   REMOTE = 2,
 }
 
+const remoteStatusOptions = computed(() => {
+  return Object.entries(RemoteStatus)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([key, value]) => !isNaN(Number(value)))
+    .map(([key, value]) => ({ name: key, value: value }));
+});
+
 const jobStore = useJobStore();
 let jobs = ref<JobRead[]>([]);
 let jobListParams = reactive({
@@ -143,11 +162,13 @@ let jobListParams = reactive({
   trueRemote: undefined,
   positiveKeywordMatch: undefined,
   recent: undefined,
+  listingRemote: undefined,
   offset: 0,
   limit: 1000,
 });
 
 onMounted(() => {
+  console.log(jobListParams);
   fetchJobs();
 });
 

@@ -1,8 +1,14 @@
 import { defineStore } from 'pinia';
 import { useMainStore as mainStore } from 'src/stores/main-store';
 import { Notify } from 'quasar';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ApiError, JobRead, JobService, OpenAPI } from 'src/client/scraper';
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ApiError,
+  JobRead,
+  JobService,
+  OpenAPI,
+  RemoteStatus,
+} from 'src/client/scraper';
 import { apiUrl } from 'src/env';
 
 OpenAPI.BASE = apiUrl;
@@ -22,6 +28,7 @@ export interface JobListParams {
   negativeKeywordMatch?: boolean;
   analysed?: boolean;
   recent?: boolean;
+  listingRemote?: RemoteStatus;
   offset?: number;
   limit?: number;
 }
@@ -51,7 +58,8 @@ export const useJobStore = defineStore('jobStore', {
           listParams.negativeKeywordMatch,
           listParams.trueRemote,
           listParams.analysed,
-          listParams.recent
+          listParams.recent,
+          listParams.listingRemote
         );
         if (response) {
           this.jobs = response;

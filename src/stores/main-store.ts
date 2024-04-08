@@ -11,10 +11,9 @@ export const useMainStore = defineStore('mainStore', {
     return {} as MainState;
   },
   actions: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async checkApiError(
       error: ApiError | AxiosError | unknown,
-      notification?: any
+      notification?: unknown
     ) {
       if ((error as ApiError).name === 'ApiError') {
         const notificationOptions = {
