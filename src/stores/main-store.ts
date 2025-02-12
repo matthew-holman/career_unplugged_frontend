@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
-import { Notify } from 'quasar';
+import { Notify, QNotifyCreateOptions } from 'quasar';
 import { AxiosError } from 'axios';
 import { ApiError } from 'src/client/scraper';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MainState {}
-
+type NotificationFunction = (options: QNotifyCreateOptions) => void;
 export const useMainStore = defineStore('mainStore', {
   state: () => {
     return {} as MainState;
@@ -13,13 +13,13 @@ export const useMainStore = defineStore('mainStore', {
   actions: {
     async checkApiError(
       error: ApiError | AxiosError | unknown,
-      notification?: unknown
+      notification?: NotificationFunction
     ) {
       if ((error as ApiError).name === 'ApiError') {
         const notificationOptions = {
           type: 'negative',
           color: 'negative',
-          message: error,
+          message: (error as ApiError).message,
         };
         if (typeof notification !== 'undefined') {
           notification(notificationOptions);
@@ -27,11 +27,13 @@ export const useMainStore = defineStore('mainStore', {
           Notify.create(String(notificationOptions));
         }
       } else {
-        notification({
-          type: 'negative',
-          color: 'negative',
-          message: (error as ApiError).message,
-        });
+        if (notification) {
+          notification({
+            type: 'negative',
+            color: 'negative',
+            message: (error as ApiError).message
+          });
+        }
       }
     },
   },

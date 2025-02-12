@@ -62,7 +62,7 @@ export const useJobStore = defineStore('jobStore', {
           listParams.listingRemote
         );
         if (response) {
-          this.jobs = response;
+          this.jobs = response as JobRead[];
           notification({
             type: 'positive',
             message: 'Finished fetching Jobs',
