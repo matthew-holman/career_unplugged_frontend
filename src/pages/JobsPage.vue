@@ -48,9 +48,9 @@
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox
-              v-model="jobListParams.trueRemote"
-              @update:model-value="fetchJobs"
+            <q-toggle
+              :model-value="jobListParams.trueRemote === true"
+              @update:model-value="toggleTrueRemote"
             />
           </q-item-section>
 
@@ -62,9 +62,9 @@
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox
-              v-model="jobListParams.positiveKeywordMatch"
-              @update:model-value="fetchJobs"
+            <q-toggle
+              :model-value="jobListParams.positiveKeywordMatch === true"
+              @update:model-value="togglePositiveKeywordMatch"
             />
           </q-item-section>
 
@@ -78,9 +78,9 @@
 
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
-            <q-checkbox
-              v-model="jobListParams.recent"
-              @update:model-value="fetchJobs"
+            <q-toggle
+              :model-value="jobListParams.recent === true"
+              @update:model-value="toggleRecent"
             />
           </q-item-section>
 
@@ -100,6 +100,7 @@
           emit-value
           map-options
           @update:model-value="fetchJobs"
+          clearable
         />
 
         <q-separator spaced />
@@ -113,6 +114,7 @@
               debounce="300"
               @update:model-value="fetchJobs"
               placeholder="Type to search country..."
+              clearable
             />
           </q-item-section>
         </q-item>
@@ -132,7 +134,6 @@ import {
   QIcon,
   QBtn,
   QSeparator,
-  QCheckbox,
   QInput,
 } from 'quasar';
 import { useJobStore } from 'stores/jobs';
@@ -153,14 +154,26 @@ const remoteStatusOptions = computed(() => {
 
 const jobStore = useJobStore();
 let jobs = ref<JobRead[]>([]);
-let jobListParams = reactive({
+let jobListParams = reactive<{
+  title?: string;
+  company?: string;
+  country?: string;
+  city?: string;
+  applied?: boolean;
+  trueRemote?: boolean;
+  positiveKeywordMatch?: true;  // Allow only `true` or `undefined`
+  recent?: true;
+  listingRemote?: number;
+  offset: number;
+  limit: number;
+}>({
   title: undefined,
   company: undefined,
   country: undefined,
   city: undefined,
   applied: undefined,
   trueRemote: undefined,
-  positiveKeywordMatch: undefined,
+  positiveKeywordMatch: undefined, // Default to undefined
   recent: undefined,
   listingRemote: undefined,
   offset: 0,
@@ -180,6 +193,22 @@ async function fetchJobs(): Promise<void> {
 function openLinkInNewTab(url: string) {
   window.open(url, '_blank');
 }
+
+function togglePositiveKeywordMatch(value: boolean) {
+  jobListParams.positiveKeywordMatch = value ? true : undefined;
+  fetchJobs();
+}
+
+function toggleRecent(value: boolean) {
+  jobListParams.recent = value ? true : undefined;
+  fetchJobs();
+}
+
+function toggleTrueRemote(value: boolean) {
+  jobListParams.trueRemote = value ? true : undefined;
+  fetchJobs();
+}
+
 </script>
 
 <style>
