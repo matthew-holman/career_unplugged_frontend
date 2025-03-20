@@ -63,6 +63,20 @@
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
             <q-toggle
+              :model-value="jobListParams.city === 'Gothenburg'"
+              @update:model-value="toggleLocalJobs"
+            />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Local Jobs</q-item-label>
+            <q-item-label caption> Show local jobs </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple tag="label">
+          <q-item-section side top>
+            <q-toggle
               :model-value="jobListParams.positiveKeywordMatch === true"
               @update:model-value="togglePositiveKeywordMatch"
             />
@@ -206,6 +220,11 @@ function toggleRecent(value: boolean) {
 
 function toggleTrueRemote(value: boolean) {
   jobListParams.trueRemote = value ? true : undefined;
+  fetchJobs();
+}
+
+function toggleLocalJobs(value: boolean) {
+  jobListParams.city = value ? 'Gothenburg' : undefined;
   fetchJobs();
 }
 
