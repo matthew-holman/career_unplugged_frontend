@@ -1,6 +1,7 @@
 # career_unplugged-frontend
 
-frontend for viewing scraped job results
+quick and dirty frontend for viewing results from a job scraper I wrote.
+Uses Vue and Quazar
 
 ## Install the dependencies
 
