@@ -7,10 +7,13 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { CareerPageCreate } from './models/CareerPageCreate';
+export type { CareerPageRead } from './models/CareerPageRead';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Job } from './models/Job';
 export type { JobRead } from './models/JobRead';
 export { RemoteStatus } from './models/RemoteStatus';
 export type { ValidationError } from './models/ValidationError';
 
+export { CareerPagesService } from './services/CareerPagesService';
 export { JobService } from './services/JobService';
