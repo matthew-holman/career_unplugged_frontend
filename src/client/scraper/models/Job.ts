@@ -19,6 +19,10 @@ export type Job = {
     listingDate?: (string | null);
     trueRemote?: (boolean | null);
     analysed?: boolean;
+    /**
+     * Reason this job was flagged as remote (pattern match, location, etc.)
+     */
+    remoteFlagReason?: (string | null);
     positiveKeywordMatch?: boolean;
     negativeKeywordMatch?: boolean;
     id?: number;

@@ -26,6 +26,13 @@
               Listing remote status
               {{ job.listingRemote != null ? RemoteStatus[job.listingRemote] : 'not set' }}
             </q-item-label>
+            <q-item-label
+              caption
+              v-if="job.remoteFlagReason"
+              class="text-teal-7"
+            >
+              Remote reason: {{ job.remoteFlagReason }}
+            </q-item-label>
           </q-item-section>
 
           <q-item-section side top>
