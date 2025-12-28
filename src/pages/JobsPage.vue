@@ -39,7 +39,7 @@
             <q-btn
               flat
               icon="launch"
-              @click.stop="openLinkInNewTab(job.linkedinUrl)"
+              @click.stop="openLinkInNewTab(job.sourceUrl)"
             />
           </q-item-section>
         </q-item>

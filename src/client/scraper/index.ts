@@ -13,6 +13,7 @@ export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Job } from './models/Job';
 export type { JobRead } from './models/JobRead';
 export { RemoteStatus } from './models/RemoteStatus';
+export { Source } from './models/Source';
 export type { ValidationError } from './models/ValidationError';
 
 export { CareerPagesService } from './services/CareerPagesService';

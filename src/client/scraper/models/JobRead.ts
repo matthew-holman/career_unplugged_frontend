@@ -4,6 +4,7 @@
 /* eslint-disable */
 
 import type { RemoteStatus } from './RemoteStatus';
+import type { Source } from './Source';
 
 export type JobRead = {
     createdAt?: string;
@@ -11,9 +12,8 @@ export type JobRead = {
     deletedAt?: (string | null);
     title?: string;
     company: string;
-    country: string;
+    country: (string | null);
     city?: (string | null);
-    linkedinUrl: string;
     applied?: boolean;
     listingRemote?: (RemoteStatus | null);
     listingDate?: (string | null);
@@ -25,6 +25,8 @@ export type JobRead = {
     remoteFlagReason?: (string | null);
     positiveKeywordMatch?: boolean;
     negativeKeywordMatch?: boolean;
+    source?: Source;
+    sourceUrl: string;
     id: number;
 };
 
