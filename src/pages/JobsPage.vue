@@ -24,7 +24,11 @@
             >
             <q-item-label caption>
               Listing remote status
-              {{ job.listingRemote != null ? RemoteStatus[job.listingRemote] : 'not set' }}
+              {{
+                job.listingRemote != null
+                  ? RemoteStatus[job.listingRemote]
+                  : 'not set'
+              }}
             </q-item-label>
             <q-item-label
               caption
@@ -124,6 +128,19 @@
           clearable
         />
 
+        <q-select
+          standout
+          v-model="jobListParams.source"
+          :options="sourceOptions"
+          option-value="value"
+          option-label="label"
+          label="Job Source"
+          emit-value
+          map-options
+          @update:model-value="fetchJobs"
+          clearable
+        />
+
         <q-separator spaced />
 
         <q-item-label header>Country Search</q-item-label>
@@ -158,7 +175,7 @@ import {
   QInput,
 } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import { JobRead } from 'src/client/scraper';
+import { JobRead, Source } from 'src/client/scraper';
 
 enum RemoteStatus {
   ONSITE = 1,
@@ -167,10 +184,19 @@ enum RemoteStatus {
 }
 
 const remoteStatusOptions = computed(() => {
-  return Object.entries(RemoteStatus)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .filter(([key, value]) => !isNaN(Number(value)))
-    .map(([key, value]) => ({ name: key, value: value }));
+  return (
+    Object.entries(RemoteStatus)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([key, value]) => !isNaN(Number(value)))
+      .map(([key, value]) => ({ name: key, value: value }))
+  );
+});
+
+const sourceOptions = computed(() => {
+  return Object.entries(Source).map(([key, value]) => ({
+    label: key,
+    value,
+  }));
 });
 
 const jobStore = useJobStore();
@@ -182,9 +208,10 @@ let jobListParams = reactive<{
   city?: string;
   applied?: boolean;
   trueRemote?: boolean;
-  positiveKeywordMatch?: true;  // Allow only `true` or `undefined`
+  positiveKeywordMatch?: true; // Allow only `true` or `undefined`
   recent?: true;
   listingRemote?: number;
+  source?: Source;
   offset: number;
   limit: number;
 }>({
@@ -197,6 +224,7 @@ let jobListParams = reactive<{
   positiveKeywordMatch: undefined, // Default to undefined
   recent: undefined,
   listingRemote: undefined,
+  source: undefined,
   offset: 0,
   limit: 1000,
 });
@@ -234,7 +262,6 @@ function toggleLocalJobs(value: boolean) {
   jobListParams.city = value ? 'Gothenburg' : undefined;
   fetchJobs();
 }
-
 </script>
 
 <style>

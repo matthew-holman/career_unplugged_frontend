@@ -8,6 +8,7 @@ import {
   JobService,
   OpenAPI,
   RemoteStatus,
+  Source,
 } from 'src/client/scraper';
 import { apiUrl } from 'src/env';
 
@@ -29,6 +30,7 @@ export interface JobListParams {
   analysed?: boolean;
   recent?: boolean;
   listingRemote?: RemoteStatus;
+  source?: Source
   offset?: number;
   limit?: number;
 }
@@ -59,8 +61,9 @@ export const useJobStore = defineStore('jobStore', {
           listParams.trueRemote,
           listParams.analysed,
           listParams.recent,
-          listParams.listingRemote
-        );
+          listParams.listingRemote,
+          listParams.source,
+      );
         if (response) {
           this.jobs = response as JobRead[];
           notification({

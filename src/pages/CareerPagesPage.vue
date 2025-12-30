@@ -17,9 +17,6 @@
             <div class="col">
               <q-input v-model="newPage.company_name" label="Company Name" filled />
             </div>
-            <div class="col">
-              <q-input v-model="newPage.ats_provider" label="ATS Provider" filled />
-            </div>
             <div class="col-auto">
               <q-btn color="primary" label="Add" type="submit" />
             </div>
@@ -56,7 +53,6 @@ const careerPagesStore = useCareerPagesStore();
 const newPage = reactive<CareerPageCreate>({
   url: '',
   company_name: '',
-  ats_provider: '',
   active: true,
 });
 
@@ -64,7 +60,6 @@ const columns: QTableProps['columns'] = [
   { name: 'id', label: 'ID', field: 'id', align: 'left' },
   { name: 'company_name', label: 'Company', field: 'company_name', align: 'left' },
   { name: 'url', label: 'URL', field: 'url', align: 'left' },
-  { name: 'ats_provider', label: 'ATS', field: 'ats_provider', align: 'left' },
   { name: 'active', label: 'Active', field: 'active', align: 'center' },
 ];
 
@@ -72,7 +67,6 @@ async function addCareerPage() {
   await careerPagesStore.addPage(newPage);
   newPage.url = '';
   newPage.company_name = '';
-  newPage.ats_provider = '';
 }
 
 onMounted(() => {

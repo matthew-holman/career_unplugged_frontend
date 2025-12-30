@@ -6,6 +6,9 @@
 export enum Source {
     LINKEDIN = 'linkedin',
     TEAMTAILOR = 'teamtailor',
-    GREENHOUSE = 'greenhouse',
+    GREENHOUSE_BOARD = 'GREENHOUSE_BOARD',
     ASHBY = 'ashby',
+    LEVER = 'lever',
+    RECRUITEE = 'recruitee',
+    RIPPLING = 'rippling',
 }

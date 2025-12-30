@@ -6,10 +6,6 @@
 export type CareerPageCreate = {
     company_name?: (string | null);
     url: string;
-    /**
-     * e.g. teamtailor, greenhouse, lever
-     */
-    ats_provider?: (string | null);
     active?: boolean;
 };
 
