@@ -4,7 +4,7 @@ import { Notify } from 'quasar';
 import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ApiError,
-  JobRead,
+  Job,
   JobService,
   OpenAPI,
   RemoteStatus,
@@ -15,7 +15,7 @@ import { apiUrl } from 'src/env';
 OpenAPI.BASE = apiUrl;
 
 interface JobState {
-  jobs: JobRead[];
+  jobs: Job[];
 }
 
 export interface JobListParams {
@@ -28,11 +28,10 @@ export interface JobListParams {
   positiveKeywordMatch?: boolean;
   negativeKeywordMatch?: boolean;
   analysed?: boolean;
-  recent?: boolean;
   listingRemote?: RemoteStatus;
-  source?: Source
-  offset?: number;
-  limit?: number;
+  source?: Source;
+  createdAtGte?: string;
+  createdAtLte?: string;
 }
 
 export const useJobStore = defineStore('jobStore', {
@@ -60,12 +59,13 @@ export const useJobStore = defineStore('jobStore', {
           listParams.negativeKeywordMatch,
           listParams.trueRemote,
           listParams.analysed,
-          listParams.recent,
           listParams.listingRemote,
           listParams.source,
+          listParams.createdAtGte,
+          listParams.createdAtLte,
       );
         if (response) {
-          this.jobs = response as JobRead[];
+          this.jobs = response as Job[];
           notification({
             type: 'positive',
             message: 'Finished fetching Jobs',

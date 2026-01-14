@@ -5,7 +5,7 @@
       <q-list bordered class="scrollable-section">
         <q-item
           v-for="job in jobs"
-          :key="job.id"
+          :key="job.id ?? job.sourceUrl"
           class="q-my-sm"
           clickable
           v-ripple
@@ -176,7 +176,7 @@ import {
   QInput,
 } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import { JobRead, Source } from 'src/client/scraper';
+import { Job, Source } from 'src/client/scraper';
 
 enum RemoteStatus {
   ONSITE = 1,
@@ -201,7 +201,7 @@ const sourceOptions = computed(() => {
 });
 
 const jobStore = useJobStore();
-let jobs = ref<JobRead[]>([]);
+let jobs = ref<Job[]>([]);
 let jobListParams = reactive<{
   title?: string;
   company?: string;

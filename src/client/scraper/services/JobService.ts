@@ -49,9 +49,10 @@ export class JobService {
      * @param negativeKeywordMatch
      * @param trueRemote
      * @param analysed
-     * @param recent
      * @param listingRemote
      * @param source
+     * @param createdAtGte
+     * @param createdAtLte
      * @returns Job Successful Response
      * @throws ApiError
      */
@@ -65,9 +66,10 @@ export class JobService {
         negativeKeywordMatch?: (boolean | null),
         trueRemote?: (boolean | null),
         analysed?: (boolean | null),
-        recent?: (boolean | null),
         listingRemote?: (RemoteStatus | null),
         source?: (Source | null),
+        createdAtGte?: (string | null),
+        createdAtLte?: (string | null),
     ): CancelablePromise<Array<Job>> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -82,9 +84,10 @@ export class JobService {
                 'negative_keyword_match': negativeKeywordMatch,
                 'true_remote': trueRemote,
                 'analysed': analysed,
-                'recent': recent,
                 'listing_remote': listingRemote,
                 'source': source,
+                'created_at_gte': createdAtGte,
+                'created_at_lte': createdAtLte,
             },
             errors: {
                 400: `Bad Request`,
