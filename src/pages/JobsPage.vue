@@ -30,6 +30,7 @@
                   : 'not set'
               }}
             </q-item-label>
+            <q-item-label caption>Source: {{ job.source }}</q-item-label>
             <q-item-label
               caption
               v-if="job.remoteFlagReason"
