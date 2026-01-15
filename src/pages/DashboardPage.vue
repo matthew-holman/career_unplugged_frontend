@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-lg">
+  <div class="q-pa-lg cu-container">
     <div class="row items-center q-mb-lg">
       <div class="text-h5 text-weight-medium">Dashboard</div>
       <q-space />
@@ -7,110 +7,61 @@
     </div>
 
     <div class="row q-col-gutter-lg q-mb-xl">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <q-card bordered class="kpi-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">To review</div>
-            <div class="text-h5">{{ kpi.toReview }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <KpiCard label="To review" :value="kpi.toReview" />
       </div>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <q-card bordered class="kpi-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">EU Remote</div>
-            <div class="text-h5">{{ kpi.euRemote }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <KpiCard label="EU Remote" :value="kpi.euRemote" />
       </div>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <q-card bordered class="kpi-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Sweden</div>
-            <div class="text-h5">{{ kpi.sweden }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <KpiCard label="Sweden" :value="kpi.sweden" />
       </div>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <q-card bordered class="kpi-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">New 7d</div>
-            <div class="text-h5">{{ kpi.new7d }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <KpiCard label="New 7d" :value="kpi.new7d" />
       </div>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <q-card bordered class="kpi-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Positive matches</div>
-            <div class="text-h5">{{ kpi.positiveMatches }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <KpiCard label="Positive matches" :value="kpi.positiveMatches" />
       </div>
     </div>
 
     <div class="row q-col-gutter-lg">
       <div class="col-12 col-lg-4">
-        <q-card bordered class="q-pa-sm">
-          <q-card-section>
-            <div class="text-subtitle1 text-weight-medium">Jobs by Source</div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <q-table
-              flat
-              dense
-              :rows="jobsBySource"
-              :columns="breakdownColumns"
-              row-key="label"
-              hide-bottom
-            />
-          </q-card-section>
-        </q-card>
+        <DashboardWidgetCard title="Jobs by Source">
+          <q-table
+            flat
+            dense
+            :rows="jobsBySource"
+            :columns="breakdownColumns"
+            row-key="label"
+            hide-bottom
+          />
+        </DashboardWidgetCard>
       </div>
 
       <div class="col-12 col-lg-4">
-        <q-card bordered class="q-pa-sm">
-          <q-card-section>
-            <div class="text-subtitle1 text-weight-medium">Jobs by Country</div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <q-table
-              flat
-              dense
-              :rows="jobsByCountry"
-              :columns="breakdownColumns"
-              row-key="label"
-              hide-bottom
-            />
-          </q-card-section>
-        </q-card>
+        <DashboardWidgetCard title="Jobs by Country">
+          <q-table
+            flat
+            dense
+            :rows="jobsByCountry"
+            :columns="breakdownColumns"
+            row-key="label"
+            hide-bottom
+          />
+        </DashboardWidgetCard>
       </div>
 
       <div class="col-12 col-lg-4">
-        <q-card bordered class="q-pa-sm">
-          <q-card-section>
-            <div class="text-subtitle1 text-weight-medium">
-              Remote status distribution
+        <DashboardWidgetCard title="Remote status distribution">
+          <div v-for="row in remoteStatusRows" :key="row.label" class="q-mb-md">
+            <div class="row items-center q-mb-xs">
+              <div class="text-caption text-grey-8">{{ row.label }}</div>
+              <q-space />
+              <div class="text-caption">{{ row.count }}</div>
             </div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <div
-              v-for="row in remoteStatusRows"
-              :key="row.label"
-              class="q-mb-md"
-            >
-              <div class="row items-center q-mb-xs">
-                <div class="text-caption text-grey-8">{{ row.label }}</div>
-                <q-space />
-                <div class="text-caption">{{ row.count }}</div>
-              </div>
-              <q-linear-progress :value="row.ratio" color="primary" />
-            </div>
-          </q-card-section>
-        </q-card>
+            <q-linear-progress :value="row.ratio" color="primary" />
+          </div>
+        </DashboardWidgetCard>
       </div>
     </div>
   </div>
@@ -120,10 +71,7 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
-  QCard,
-  QCardSection,
   QBtn,
-  QSeparator,
   QTable,
   QLinearProgress,
   QSpace,
@@ -131,6 +79,8 @@ import {
 import { QTableProps } from 'quasar';
 import { useJobStore } from 'stores/jobs';
 import { Job, RemoteStatus } from 'src/client/scraper';
+import KpiCard from 'src/components/KpiCard.vue';
+import DashboardWidgetCard from 'src/components/DashboardWidgetCard.vue';
 
 const jobStore = useJobStore();
 const router = useRouter();
@@ -289,9 +239,3 @@ function goToReview() {
   });
 }
 </script>
-
-<style scoped>
-.kpi-card {
-  min-height: 110px;
-}
-</style>

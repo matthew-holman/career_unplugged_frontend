@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-lg page-container">
+  <div class="q-pa-lg cu-container">
     <div class="row items-center q-gutter-md q-mb-lg">
       <div class="text-h5 text-weight-medium">Jobs</div>
       <q-space />
@@ -20,6 +20,7 @@
         :outline="!isToReviewActive"
         :color="isToReviewActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="toggleToReview"
       >
         To review
@@ -29,6 +30,7 @@
         :outline="!isRemoteActive"
         :color="isRemoteActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="toggleRemote"
       >
         Remote
@@ -38,6 +40,7 @@
         :outline="!isSwedenActive"
         :color="isSwedenActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="toggleSweden"
       >
         Sweden
@@ -47,6 +50,7 @@
         :outline="!isEuRemoteActive"
         :color="isEuRemoteActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="toggleEuRemote"
       >
         EU Remote
@@ -56,6 +60,7 @@
         :outline="!isNew7dActive"
         :color="isNew7dActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="toggleNew7d"
       >
         New 7d
@@ -65,6 +70,7 @@
         :outline="!isPositiveMatchActive"
         :color="isPositiveMatchActive ? 'primary' : 'grey-4'"
         text-color="dark"
+        class="cu-chip"
         @click="togglePositiveMatch"
       >
         Positive matches
@@ -85,88 +91,18 @@
           :key="job.id ?? job.sourceUrl"
           class="col-12 col-sm-6 col-lg-4 col-xl-3"
         >
-          <q-card bordered class="job-card">
-            <q-card-section>
-              <div class="row items-start q-mb-xs">
-                <div class="text-subtitle1 text-weight-medium">
-                  {{ job.title || 'Untitled role' }}
-                </div>
-                <q-space />
-                <q-chip
-                  v-if="triageLabel(job)"
-                  dense
-                  :color="triageColor(job)"
-                  text-color="white"
-                >
-                  {{ triageLabel(job) }}
-                </q-chip>
-              </div>
-              <div class="text-subtitle2">{{ job.company }}</div>
-              <div class="text-caption text-grey-7 q-mt-xs">
-                {{ locationLabel(job) }}
-              </div>
-              <div class="text-caption text-grey-7">
-                Source: {{ job.source || 'unknown' }}
-              </div>
-              <div class="row q-gutter-xs q-mt-sm">
-                <q-chip
-                  v-if="job.trueRemote"
-                  dense
-                  color="teal-2"
-                  text-color="teal-9"
-                >
-                  True remote
-                </q-chip>
-                <q-chip
-                  v-if="listingRemoteLabel(job)"
-                  dense
-                  color="blue-1"
-                  text-color="blue-9"
-                >
-                  {{ listingRemoteLabel(job) }}
-                </q-chip>
-              </div>
-              <div class="text-caption text-grey-7 q-mt-sm">
-                {{ dateLabel(job) }}
-              </div>
-              <div
-                v-if="job.remoteFlagReason"
-                class="text-caption text-teal-7 q-mt-xs"
-              >
-                Remote reason: {{ job.remoteFlagReason }}
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card-actions align="between">
-              <q-btn
-                flat
-                color="primary"
-                label="Open"
-                @click.stop="openLinkInNewTab(job.sourceUrl)"
-              />
-              <div class="row q-gutter-xs">
-                <q-btn
-                  flat
-                  dense
-                  label="Mark Applied"
-                  @click.stop="setTriage(job, 'applied')"
-                />
-                <q-btn
-                  flat
-                  dense
-                  label="Shortlist"
-                  @click.stop="setTriage(job, 'shortlist')"
-                />
-                <q-btn
-                  flat
-                  dense
-                  color="negative"
-                  label="Ignore"
-                  @click.stop="setTriage(job, 'ignore')"
-                />
-              </div>
-            </q-card-actions>
-          </q-card>
+          <JobCard
+            :job="job"
+            :triage-label="triageLabel(job)"
+            :triage-color="triageColor(job)"
+            :location-label="locationLabel(job)"
+            :listing-remote-label="listingRemoteLabel(job)"
+            :date-label="dateLabel(job)"
+            @open="openLinkInNewTab(job.sourceUrl)"
+            @applied="setTriage(job, 'applied')"
+            @shortlist="setTriage(job, 'shortlist')"
+            @ignore="setTriage(job, 'ignore')"
+          />
         </div>
       </div>
     </section>
@@ -185,88 +121,18 @@
           :key="`all-${job.id ?? job.sourceUrl}`"
           class="col-12 col-sm-6 col-lg-4 col-xl-3"
         >
-          <q-card bordered class="job-card">
-            <q-card-section>
-              <div class="row items-start q-mb-xs">
-                <div class="text-subtitle1 text-weight-medium">
-                  {{ job.title || 'Untitled role' }}
-                </div>
-                <q-space />
-                <q-chip
-                  v-if="triageLabel(job)"
-                  dense
-                  :color="triageColor(job)"
-                  text-color="white"
-                >
-                  {{ triageLabel(job) }}
-                </q-chip>
-              </div>
-              <div class="text-subtitle2">{{ job.company }}</div>
-              <div class="text-caption text-grey-7 q-mt-xs">
-                {{ locationLabel(job) }}
-              </div>
-              <div class="text-caption text-grey-7">
-                Source: {{ job.source || 'unknown' }}
-              </div>
-              <div class="row q-gutter-xs q-mt-sm">
-                <q-chip
-                  v-if="job.trueRemote"
-                  dense
-                  color="teal-2"
-                  text-color="teal-9"
-                >
-                  True remote
-                </q-chip>
-                <q-chip
-                  v-if="listingRemoteLabel(job)"
-                  dense
-                  color="blue-1"
-                  text-color="blue-9"
-                >
-                  {{ listingRemoteLabel(job) }}
-                </q-chip>
-              </div>
-              <div class="text-caption text-grey-7 q-mt-sm">
-                {{ dateLabel(job) }}
-              </div>
-              <div
-                v-if="job.remoteFlagReason"
-                class="text-caption text-teal-7 q-mt-xs"
-              >
-                Remote reason: {{ job.remoteFlagReason }}
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card-actions align="between">
-              <q-btn
-                flat
-                color="primary"
-                label="Open"
-                @click.stop="openLinkInNewTab(job.sourceUrl)"
-              />
-              <div class="row q-gutter-xs">
-                <q-btn
-                  flat
-                  dense
-                  label="Mark Applied"
-                  @click.stop="setTriage(job, 'applied')"
-                />
-                <q-btn
-                  flat
-                  dense
-                  label="Shortlist"
-                  @click.stop="setTriage(job, 'shortlist')"
-                />
-                <q-btn
-                  flat
-                  dense
-                  color="negative"
-                  label="Ignore"
-                  @click.stop="setTriage(job, 'ignore')"
-                />
-              </div>
-            </q-card-actions>
-          </q-card>
+          <JobCard
+            :job="job"
+            :triage-label="triageLabel(job)"
+            :triage-color="triageColor(job)"
+            :location-label="locationLabel(job)"
+            :listing-remote-label="listingRemoteLabel(job)"
+            :date-label="dateLabel(job)"
+            @open="openLinkInNewTab(job.sourceUrl)"
+            @applied="setTriage(job, 'applied')"
+            @shortlist="setTriage(job, 'shortlist')"
+            @ignore="setTriage(job, 'ignore')"
+          />
         </div>
       </div>
     </section>
@@ -276,19 +142,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
-import {
-  QBtn,
-  QCard,
-  QCardActions,
-  QCardSection,
-  QChip,
-  QInput,
-  QSeparator,
-  QSpace,
-} from 'quasar';
+import { QChip, QInput, QSpace } from 'quasar';
 import { useJobStore } from 'stores/jobs';
 import { Job, RemoteStatus } from 'src/client/scraper';
 import { JobQueryFilters, parseJobQuery, serializeJobQuery } from 'src/utils/jobQuery';
+import JobCard from 'src/components/JobCard.vue';
 
 type TriageStatus = 'applied' | 'shortlist' | 'ignore';
 
@@ -622,18 +480,3 @@ function openLinkInNewTab(url: string) {
   window.open(url, '_blank');
 }
 </script>
-
-<style scoped>
-.page-container {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-.search-input {
-  min-width: 260px;
-}
-
-.job-card {
-  min-height: 280px;
-}
-</style>
