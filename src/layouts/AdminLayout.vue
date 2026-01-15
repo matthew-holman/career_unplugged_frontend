@@ -13,6 +13,11 @@
       <q-list padding>
         <q-item-label header>Navigation</q-item-label>
 
+        <q-item clickable v-ripple to="/dashboard" exact>
+          <q-item-section avatar><q-icon name="dashboard" /></q-item-section>
+          <q-item-section>Dashboard</q-item-section>
+        </q-item>
+
         <q-item clickable v-ripple to="/jobs" exact>
           <q-item-section avatar><q-icon name="work_outline" /></q-item-section>
           <q-item-section>Jobs</q-item-section>
@@ -21,6 +26,11 @@
         <q-item clickable v-ripple to="/career-pages" exact>
           <q-item-section avatar><q-icon name="business_center" /></q-item-section>
           <q-item-section>Career Pages</q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple to="/settings" exact>
+          <q-item-section avatar><q-icon name="settings" /></q-item-section>
+          <q-item-section>Settings</q-item-section>
         </q-item>
       </q-list>
     </q-drawer>

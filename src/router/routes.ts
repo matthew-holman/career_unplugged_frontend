@@ -7,7 +7,12 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: '/jobs',
+        redirect: '/dashboard',
+      },
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('pages/IndexPage.vue'),
       },
       {
         path: 'jobs',
@@ -18,6 +23,11 @@ const routes: RouteRecordRaw[] = [
         path: 'career-pages',
         name: 'career-pages',
         component: () => import('pages/CareerPagesPage.vue'),
+      },
+      {
+        path: 'settings',
+        name: 'settings',
+        component: () => import('pages/IndexPage.vue'),
       },
     ],
   },
