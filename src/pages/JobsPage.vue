@@ -105,7 +105,7 @@
         <q-item clickable v-ripple tag="label">
           <q-item-section side top>
             <q-toggle
-              :model-value="jobListParams.recent === true"
+              :model-value="Boolean(jobListParams.createdAtGte)"
               @update:model-value="toggleRecent"
             />
           </q-item-section>
@@ -209,12 +209,13 @@ let jobListParams = reactive<{
   city?: string;
   applied?: boolean;
   trueRemote?: boolean;
-  positiveKeywordMatch?: true; // Allow only `true` or `undefined`
-  recent?: true;
+  positiveKeywordMatch?: boolean;
+  negativeKeywordMatch?: boolean;
+  analysed?: boolean;
   listingRemote?: number;
   source?: Source;
-  offset: number;
-  limit: number;
+  createdAtGte?: string;
+  createdAtLte?: string;
 }>({
   title: undefined,
   company: undefined,
@@ -222,12 +223,13 @@ let jobListParams = reactive<{
   city: undefined,
   applied: undefined,
   trueRemote: undefined,
-  positiveKeywordMatch: undefined, // Default to undefined
-  recent: undefined,
+  positiveKeywordMatch: undefined,
+  negativeKeywordMatch: undefined,
+  analysed: undefined,
   listingRemote: undefined,
   source: undefined,
-  offset: 0,
-  limit: 1000,
+  createdAtGte: undefined,
+  createdAtLte: undefined,
 });
 
 onMounted(() => {
@@ -250,7 +252,16 @@ function togglePositiveKeywordMatch(value: boolean) {
 }
 
 function toggleRecent(value: boolean) {
-  jobListParams.recent = value ? true : undefined;
+  if (value) {
+    const now = new Date();
+    const gte = new Date(now);
+    gte.setDate(now.getDate() - 7);
+    jobListParams.createdAtGte = gte.toISOString();
+    jobListParams.createdAtLte = now.toISOString();
+  } else {
+    jobListParams.createdAtGte = undefined;
+    jobListParams.createdAtLte = undefined;
+  }
   fetchJobs();
 }
 
