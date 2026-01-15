@@ -9,6 +9,7 @@ Local instructions for coding agents working in this repo.
 ## Non-negotiables
 - Do NOT edit generated files under `src/client/**`.
 - Create thin wrappers in `src/api/**` to call generated services (e.g. `listJobs(filters)`).
+- Prefer composition via reusable components over repeated markup (e.g. KPI card component, Job card component).
 
 ## Product goal
 Make the app feel like a fast “job inbox”:
@@ -38,3 +39,15 @@ Make the app feel like a fast “job inbox”:
 - Run `npm run lint` when practical.
 - Ensure `npm run dev` and `npm run build` still work after changes.
 - Summarize changes and list touched files in the output.
+
+## Styling rules (important)
+- Avoid page-local or component-scoped CSS unless strictly necessary.
+- Do not use inline styles for layout or spacing.
+- Prefer Quasar utility classes (`q-pa-*`, `q-ma-*`, `q-gutter-*`, flex/grid helpers).
+- Centralize custom styling in:
+  - Quasar brand/theme configuration
+  - global styles (e.g. `src/css/app.scss`)
+- When custom classes are needed:
+  - define them once in global styles
+  - name them generically and reuse across pages (e.g. `.cu-container`, `.cu-card`, `.cu-kpi`)
+- Do not introduce one-off visual tweaks in individual pages.
