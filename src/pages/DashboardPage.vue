@@ -285,7 +285,6 @@ function goToReview() {
     query: {
       createdAtGte: gte.toISOString(),
       createdAtLte: now.toISOString(),
-      positiveKeywordMatch: 'true',
     },
   });
 }
