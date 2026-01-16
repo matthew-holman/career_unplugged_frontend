@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   QBtn,
@@ -77,20 +77,25 @@ import {
   QSpace,
 } from 'quasar';
 import { QTableProps } from 'quasar';
-import { useJobStore } from 'stores/jobs';
-import { Job, RemoteStatus } from 'src/client/scraper';
+import { DashboardService, type JobSummary, RemoteStatus } from 'src/client/scraper';
 import KpiCard from 'src/components/KpiCard.vue';
 import DashboardWidgetCard from 'src/components/DashboardWidgetCard.vue';
 
-const jobStore = useJobStore();
 const router = useRouter();
+const summary = ref<JobSummary | null>(null);
 
 onMounted(() => {
-  jobStore.listJobs({});
+  DashboardService.jobsSummaryDashboardJobsSummaryGet().then((data) => {
+    summary.value = data;
+  });
 });
 
-const jobs = computed<Job[]>(() => jobStore.jobs);
-const totalJobs = computed(() => jobs.value.length || 1);
+const totalJobs = computed(() => {
+  if (!summary.value) return 1;
+  const values = Object.values(summary.value.counts_by_source || {});
+  const total = values.reduce((acc, value) => acc + value, 0);
+  return total || 1;
+});
 
 const breakdownColumns: QTableProps['columns'] = [
   { name: 'label', label: 'Label', field: 'label', align: 'left' },
@@ -98,79 +103,18 @@ const breakdownColumns: QTableProps['columns'] = [
   { name: 'percent', label: '%', field: 'percent', align: 'right' },
 ];
 
-const EU_COUNTRIES = new Set(
-  [
-    'austria',
-    'belgium',
-    'bulgaria',
-    'croatia',
-    'cyprus',
-    'czechia',
-    'czech republic',
-    'denmark',
-    'estonia',
-    'finland',
-    'france',
-    'germany',
-    'greece',
-    'hungary',
-    'ireland',
-    'italy',
-    'latvia',
-    'lithuania',
-    'luxembourg',
-    'malta',
-    'netherlands',
-    'poland',
-    'portugal',
-    'romania',
-    'slovakia',
-    'slovenia',
-    'spain',
-    'sweden',
-  ]
-);
-
 const kpi = computed(() => {
-  const now = new Date();
-  const sevenDaysAgo = new Date(now);
-  sevenDaysAgo.setDate(now.getDate() - 7);
-
-  let toReview = 0;
-  let euRemote = 0;
-  let sweden = 0;
-  let new7d = 0;
-  let positiveMatches = 0;
-
-  jobs.value.forEach((job) => {
-    if (job.applied !== true) toReview += 1;
-    if (job.positiveKeywordMatch) positiveMatches += 1;
-
-    const country = (job.country || '').toLowerCase().trim();
-    if (country === 'sweden') sweden += 1;
-
-    const isRemote =
-      job.listingRemote === RemoteStatus._2 || job.trueRemote === true;
-    if (isRemote && EU_COUNTRIES.has(country)) euRemote += 1;
-
-    const rawDate = job.listingDate ?? job.createdAt;
-    if (rawDate) {
-      const parsed = new Date(rawDate);
-      if (!Number.isNaN(parsed.getTime()) && parsed >= sevenDaysAgo) {
-        new7d += 1;
-      }
-    }
-  });
-
-  return { toReview, euRemote, sweden, new7d, positiveMatches };
+  return {
+    toReview: summary.value?.to_review ?? 0,
+    euRemote: summary.value?.eu_remote ?? 0,
+    sweden: summary.value?.sweden ?? 0,
+    new7d: summary.value?.new7d ?? 0,
+    positiveMatches: summary.value?.positive_matches ?? 0,
+  };
 });
 
 const jobsBySource = computed(() => {
-  const counts: Record<string, number> = {};
-  jobs.value.forEach((job) => {
-    const label = job.source ? String(job.source) : 'unknown';
-    counts[label] = (counts[label] || 0) + 1;
-  });
+  const counts = summary.value?.counts_by_source || {};
   return Object.entries(counts)
     .map(([label, count]) => ({
       label,
@@ -181,11 +125,7 @@ const jobsBySource = computed(() => {
 });
 
 const jobsByCountry = computed(() => {
-  const counts: Record<string, number> = {};
-  jobs.value.forEach((job) => {
-    const label = job.country ? String(job.country) : 'unknown';
-    counts[label] = (counts[label] || 0) + 1;
-  });
+  const counts = summary.value?.counts_by_country || {};
   return Object.entries(counts)
     .map(([label, count]) => ({
       label,
@@ -196,35 +136,30 @@ const jobsByCountry = computed(() => {
 });
 
 const remoteStatusRows = computed(() => {
-  const counts = {
-    Remote: 0,
-    Hybrid: 0,
-    Onsite: 0,
-    Unknown: 0,
-  };
-
-  jobs.value.forEach((job) => {
-    if (job.listingRemote === RemoteStatus._2 || job.trueRemote === true) {
-      counts.Remote += 1;
-      return;
-    }
-    if (job.listingRemote === RemoteStatus._3) {
-      counts.Hybrid += 1;
-      return;
-    }
-    if (job.listingRemote === RemoteStatus._1) {
-      counts.Onsite += 1;
-      return;
-    }
-    counts.Unknown += 1;
-  });
-
-  return Object.entries(counts).map(([label, count]) => ({
-    label,
-    count,
-    ratio: count / totalJobs.value,
+  const counts = summary.value?.counts_by_remote_status || {};
+  const order = [RemoteStatus.REMOTE, RemoteStatus.HYBRID, RemoteStatus.ONSITE];
+  const rows = order.map((status) => ({
+    label: statusLabel(status),
+    count: counts[status] ?? 0,
+    ratio: (counts[status] ?? 0) / totalJobs.value,
   }));
+  const unknown = Object.keys(counts).filter((key) => !order.includes(key as RemoteStatus));
+  if (unknown.length > 0) {
+    const totalUnknown = unknown.reduce((acc, key) => acc + (counts[key] || 0), 0);
+    rows.push({
+      label: 'Unknown',
+      count: totalUnknown,
+      ratio: totalUnknown / totalJobs.value,
+    });
+  }
+  return rows;
 });
+
+function statusLabel(status: RemoteStatus) {
+  if (status === RemoteStatus.REMOTE) return 'Remote';
+  if (status === RemoteStatus.HYBRID) return 'Hybrid';
+  return 'Onsite';
+}
 
 function goToReview() {
   const now = new Date();

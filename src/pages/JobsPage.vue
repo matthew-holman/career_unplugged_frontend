@@ -151,39 +151,6 @@ import JobCard from 'src/components/JobCard.vue';
 type TriageStatus = 'applied' | 'shortlist' | 'ignore';
 
 const TRIAGE_STORAGE_KEY = 'jobTriage';
-const EU_COUNTRIES = new Set(
-  [
-    'austria',
-    'belgium',
-    'bulgaria',
-    'croatia',
-    'cyprus',
-    'czechia',
-    'czech republic',
-    'denmark',
-    'estonia',
-    'finland',
-    'france',
-    'germany',
-    'greece',
-    'hungary',
-    'ireland',
-    'italy',
-    'latvia',
-    'lithuania',
-    'luxembourg',
-    'malta',
-    'netherlands',
-    'poland',
-    'portugal',
-    'romania',
-    'slovakia',
-    'slovenia',
-    'spain',
-    'sweden',
-  ]
-);
-
 const jobStore = useJobStore();
 const route = useRoute();
 const router = useRouter();
@@ -206,6 +173,7 @@ const filters = reactive<JobQueryFilters>({
   listingDateGte: undefined,
   listingDateLte: undefined,
   euRemote: undefined,
+  recentDays: undefined,
 });
 
 const titleModel = computed({
@@ -271,33 +239,15 @@ async function fetchJobs(): Promise<void> {
     listingRemote: filters.listingRemote,
     createdAtGte: filters.createdAtGte,
     createdAtLte: filters.createdAtLte,
+    listingDateGte: filters.listingDateGte,
+    listingDateLte: filters.listingDateLte,
+    euRemote: filters.euRemote,
+    recentDays: filters.recentDays,
   });
   jobs.value = jobStore.jobs;
 }
 
-const visibleJobs = computed(() => {
-  let list = jobs.value;
-  if (filters.listingDateGte || filters.listingDateLte) {
-    const gte = parseDate(filters.listingDateGte);
-    const lte = parseDate(filters.listingDateLte);
-    list = list.filter((job) => {
-      const jobDate = parseDate(job.listingDate ?? job.createdAt);
-      if (!jobDate) return false;
-      if (gte && jobDate < gte) return false;
-      if (lte && jobDate > lte) return false;
-      return true;
-    });
-  }
-  if (filters.euRemote) {
-    list = list.filter((job) => {
-      const isRemote =
-        job.listingRemote === RemoteStatus._2 || job.trueRemote === true;
-      const country = (job.country || '').toLowerCase().trim();
-      return isRemote && EU_COUNTRIES.has(country);
-    });
-  }
-  return list;
-});
+const visibleJobs = computed(() => jobs.value);
 
 const topMatches = computed(() => visibleJobs.value);
 
@@ -308,7 +258,9 @@ const isSwedenActive = computed(
 );
 const isEuRemoteActive = computed(() => filters.euRemote === true);
 const isNew7dActive = computed(
-  () => Boolean(filters.createdAtGte && filters.createdAtLte)
+  () =>
+    filters.recentDays === 7 ||
+    Boolean(filters.createdAtGte && filters.createdAtLte)
 );
 const isPositiveMatchActive = computed(
   () => filters.positiveKeywordMatch === true
@@ -332,20 +284,18 @@ function toggleEuRemote() {
     return;
   }
   filters.euRemote = true;
-  filters.trueRemote = true;
 }
 
 function toggleNew7d() {
-  if (filters.createdAtGte && filters.createdAtLte) {
-    filters.createdAtGte = undefined;
-    filters.createdAtLte = undefined;
+  if (filters.recentDays === 7) {
+    filters.recentDays = undefined;
     return;
   }
-  const now = new Date();
-  const gte = new Date(now);
-  gte.setDate(now.getDate() - 7);
-  filters.createdAtGte = gte.toISOString();
-  filters.createdAtLte = now.toISOString();
+  filters.recentDays = 7;
+  filters.createdAtGte = undefined;
+  filters.createdAtLte = undefined;
+  filters.listingDateGte = undefined;
+  filters.listingDateLte = undefined;
 }
 
 function togglePositiveMatch() {
@@ -371,6 +321,7 @@ function applyFilters(next: JobQueryFilters): boolean {
     'listingDateGte',
     'listingDateLte',
     'euRemote',
+    'recentDays',
   ];
   let changed = false;
   keys.forEach((key) => {
@@ -453,9 +404,9 @@ function triageColor(job: Job): string {
 }
 
 function listingRemoteLabel(job: Job): string | null {
-  if (job.listingRemote === RemoteStatus._1) return 'Onsite';
-  if (job.listingRemote === RemoteStatus._2) return 'Remote';
-  if (job.listingRemote === RemoteStatus._3) return 'Hybrid';
+  if (job.listingRemote === RemoteStatus.ONSITE) return 'Onsite';
+  if (job.listingRemote === RemoteStatus.REMOTE) return 'Remote';
+  if (job.listingRemote === RemoteStatus.HYBRID) return 'Hybrid';
   return null;
 }
 

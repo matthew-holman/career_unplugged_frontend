@@ -1,4 +1,4 @@
-import { Source } from 'src/client/scraper';
+import { RemoteStatus, Source } from 'src/client/scraper';
 
 export type JobQueryFilters = {
   title?: string;
@@ -11,12 +11,13 @@ export type JobQueryFilters = {
   positiveKeywordMatch?: boolean;
   negativeKeywordMatch?: boolean;
   source?: Source;
-  listingRemote?: number;
+  listingRemote?: RemoteStatus;
   createdAtGte?: string;
   createdAtLte?: string;
   listingDateGte?: string;
   listingDateLte?: string;
   euRemote?: boolean;
+  recentDays?: number;
 };
 
 type QueryValue = string | string[] | null | undefined;
@@ -38,6 +39,7 @@ const KEY_ALIASES: Record<keyof JobQueryFilters, string[]> = {
   listingDateGte: ['listingDateGte', 'listing_date_gte'],
   listingDateLte: ['listingDateLte', 'listing_date_lte'],
   euRemote: ['euRemote', 'eu_remote'],
+  recentDays: ['recentDays', 'recent_days'],
 };
 
 const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
@@ -57,6 +59,7 @@ const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
   listingDateGte: 'listing_date_gte',
   listingDateLte: 'listing_date_lte',
   euRemote: 'eu_remote',
+  recentDays: 'recent_days',
 };
 
 const BOOLEAN_KEYS = new Set<keyof JobQueryFilters>([
@@ -84,6 +87,18 @@ function parseNumber(value: string | undefined): number | undefined {
   if (!value) return undefined;
   const parsed = Number(value);
   return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function parseRemoteStatus(value: string | undefined): RemoteStatus | undefined {
+  if (!value) return undefined;
+  if (value === RemoteStatus.REMOTE) return RemoteStatus.REMOTE;
+  if (value === RemoteStatus.HYBRID) return RemoteStatus.HYBRID;
+  if (value === RemoteStatus.ONSITE) return RemoteStatus.ONSITE;
+  const parsed = parseNumber(value);
+  if (parsed === 1) return RemoteStatus.ONSITE;
+  if (parsed === 2) return RemoteStatus.REMOTE;
+  if (parsed === 3) return RemoteStatus.HYBRID;
+  return undefined;
 }
 
 function parseSource(value: string | undefined): Source | undefined {
@@ -122,8 +137,14 @@ export function parseJobQuery(
     if (raw === undefined || raw === '') return;
 
     if (key === 'listingRemote') {
-      const parsed = parseNumber(raw);
+      const parsed = parseRemoteStatus(raw);
       if (parsed !== undefined) setFilter('listingRemote', parsed);
+      return;
+    }
+
+    if (key === 'recentDays') {
+      const parsed = parseNumber(raw);
+      if (parsed !== undefined) setFilter('recentDays', parsed);
       return;
     }
 

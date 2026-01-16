@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum RemoteStatus {
-    ONSITE = 'ONSITE',
-    HYBRID = 'HYBRID',
-    REMOTE = 'REMOTE',
-}
+import type { Region } from './Region';
+
+export type RegionsResponse = {
+    regions: Array<Region>;
+};
+

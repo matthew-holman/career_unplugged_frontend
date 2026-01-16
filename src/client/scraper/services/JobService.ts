@@ -53,6 +53,10 @@ export class JobService {
      * @param source
      * @param createdAtGte
      * @param createdAtLte
+     * @param listingDateGte
+     * @param listingDateLte
+     * @param euRemote
+     * @param recentDays
      * @returns Job Successful Response
      * @throws ApiError
      */
@@ -70,6 +74,10 @@ export class JobService {
         source?: (Source | null),
         createdAtGte?: (string | null),
         createdAtLte?: (string | null),
+        listingDateGte?: (string | null),
+        listingDateLte?: (string | null),
+        euRemote?: (boolean | null),
+        recentDays?: (number | null),
     ): CancelablePromise<Array<Job>> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -88,6 +96,10 @@ export class JobService {
                 'source': source,
                 'created_at_gte': createdAtGte,
                 'created_at_lte': createdAtLte,
+                'listing_date_gte': listingDateGte,
+                'listing_date_lte': listingDateLte,
+                'eu_remote': euRemote,
+                'recent_days': recentDays,
             },
             errors: {
                 400: `Bad Request`,

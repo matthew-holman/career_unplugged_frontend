@@ -32,6 +32,10 @@ export interface JobListParams {
   source?: Source;
   createdAtGte?: string;
   createdAtLte?: string;
+  listingDateGte?: string;
+  listingDateLte?: string;
+  euRemote?: boolean;
+  recentDays?: number;
 }
 
 export const useJobStore = defineStore('jobStore', {
@@ -63,6 +67,10 @@ export const useJobStore = defineStore('jobStore', {
           listParams.source,
           listParams.createdAtGte,
           listParams.createdAtLte,
+          listParams.listingDateGte,
+          listParams.listingDateLte,
+          listParams.euRemote,
+          listParams.recentDays,
       );
         if (response) {
           this.jobs = response as Job[];
