@@ -185,6 +185,15 @@ const titleModel = computed({
 
 let queryUpdateTimer: number | undefined;
 let syncingFromRoute = false;
+let appliedDefaultQuery = false;
+
+const DEFAULT_RECENT_DAYS = 7;
+
+function getDefaultFilters(): JobQueryFilters {
+  return {
+    recentDays: DEFAULT_RECENT_DAYS,
+  };
+}
 
 onMounted(() => {
   loadTriage();
@@ -194,6 +203,22 @@ watch(
   () => route.query,
   (query) => {
     syncingFromRoute = true;
+    const hasQuery = Object.keys(query).length > 0;
+    if (!hasQuery) {
+      if (!appliedDefaultQuery) {
+        appliedDefaultQuery = true;
+        const defaults = getDefaultFilters();
+        applyFilters(defaults);
+        const nextQuery = serializeJobQuery(defaults);
+        router.replace({ query: nextQuery });
+        fetchJobs();
+      }
+      window.setTimeout(() => {
+        syncingFromRoute = false;
+      }, 0);
+      return;
+    }
+    appliedDefaultQuery = false;
     const next = parseJobQuery(
       query as Record<string, string | string[] | null | undefined>
     );
