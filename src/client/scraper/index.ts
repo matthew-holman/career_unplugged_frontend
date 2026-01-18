@@ -10,13 +10,14 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { CareerPageCreate } from './models/CareerPageCreate';
 export type { CareerPageRead } from './models/CareerPageRead';
 export type { HTTPValidationError } from './models/HTTPValidationError';
-export type { Job } from './models/Job';
-export type { JobRead } from './models/JobRead';
 export type { JobSummary } from './models/JobSummary';
+export type { JobWithUserStateRead } from './models/JobWithUserStateRead';
 export type { Region } from './models/Region';
 export type { RegionsResponse } from './models/RegionsResponse';
 export { RemoteStatus } from './models/RemoteStatus';
 export { Source } from './models/Source';
+export type { UserJobStateRead } from './models/UserJobStateRead';
+export type { UserJobStateUpdate } from './models/UserJobStateUpdate';
 export type { ValidationError } from './models/ValidationError';
 
 export { CareerPagesService } from './services/CareerPagesService';

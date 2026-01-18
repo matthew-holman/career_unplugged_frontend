@@ -6,12 +6,9 @@ import {
   CareerPageRead,
   CareerPageCreate,
   CareerPagesService,
-  OpenAPI,
 } from 'src/client/scraper';
 import { useMainStore as mainStore } from 'src/stores/main-store';
-import { apiUrl } from 'src/env';
 
-OpenAPI.BASE = apiUrl;
 
 interface CareerPageState {
   pages: CareerPageRead[];

@@ -99,9 +99,9 @@
             :listing-remote-label="listingRemoteLabel(job)"
             :date-label="dateLabel(job)"
             @open="openLinkInNewTab(job.sourceUrl)"
-            @applied="setTriage(job, 'applied')"
-            @shortlist="setTriage(job, 'shortlist')"
-            @ignore="setTriage(job, 'ignore')"
+            @applied="markApplied(job)"
+            @shortlist="setShortlist(job)"
+            @ignore="markIgnored(job)"
           />
         </div>
       </div>
@@ -129,9 +129,9 @@
             :listing-remote-label="listingRemoteLabel(job)"
             :date-label="dateLabel(job)"
             @open="openLinkInNewTab(job.sourceUrl)"
-            @applied="setTriage(job, 'applied')"
-            @shortlist="setTriage(job, 'shortlist')"
-            @ignore="setTriage(job, 'ignore')"
+            @applied="markApplied(job)"
+            @shortlist="setShortlist(job)"
+            @ignore="markIgnored(job)"
           />
         </div>
       </div>
@@ -144,24 +144,25 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { QChip, QInput, QSpace } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import { Job, RemoteStatus } from 'src/client/scraper';
+import { JobWithUserStateRead, RemoteStatus } from 'src/client/scraper';
 import { JobQueryFilters, parseJobQuery, serializeJobQuery } from 'src/utils/jobQuery';
 import JobCard from 'src/components/JobCard.vue';
 
-type TriageStatus = 'applied' | 'shortlist' | 'ignore';
+type TriageStatus = 'shortlist';
 
-const TRIAGE_STORAGE_KEY = 'jobTriage';
+const SHORTLIST_STORAGE_KEY = 'jobShortlist';
 const jobStore = useJobStore();
 const route = useRoute();
 const router = useRouter();
-const jobs = ref<Job[]>([]);
-const triage = ref<Record<string, TriageStatus>>({});
+const jobs = ref<JobWithUserStateRead[]>([]);
+const shortlist = ref<Record<string, TriageStatus>>({});
 const filters = reactive<JobQueryFilters>({
   title: undefined,
   company: undefined,
   country: undefined,
   city: undefined,
   applied: undefined,
+  ignored: undefined,
   trueRemote: undefined,
   analysed: undefined,
   positiveKeywordMatch: undefined,
@@ -196,7 +197,7 @@ function getDefaultFilters(): JobQueryFilters {
 }
 
 onMounted(() => {
-  loadTriage();
+  loadShortlist();
 });
 
 watch(
@@ -256,6 +257,7 @@ async function fetchJobs(): Promise<void> {
     country: filters.country,
     city: filters.city,
     applied: filters.applied,
+    ignored: filters.ignored,
     trueRemote: filters.trueRemote,
     analysed: filters.analysed,
     positiveKeywordMatch: filters.positiveKeywordMatch,
@@ -276,7 +278,9 @@ const visibleJobs = computed(() => jobs.value);
 
 const topMatches = computed(() => visibleJobs.value);
 
-const isToReviewActive = computed(() => filters.applied === false);
+const isToReviewActive = computed(
+  () => filters.applied === false && filters.ignored === false
+);
 const isRemoteActive = computed(() => filters.trueRemote === true);
 const isSwedenActive = computed(
   () => (filters.country || '').toLowerCase() === 'sweden'
@@ -292,7 +296,13 @@ const isPositiveMatchActive = computed(
 );
 
 function toggleToReview() {
-  filters.applied = filters.applied === false ? undefined : false;
+  if (filters.applied === false && filters.ignored === false) {
+    filters.applied = undefined;
+    filters.ignored = undefined;
+    return;
+  }
+  filters.applied = false;
+  filters.ignored = false;
 }
 
 function toggleRemote() {
@@ -335,6 +345,7 @@ function applyFilters(next: JobQueryFilters): boolean {
     'country',
     'city',
     'applied',
+    'ignored',
     'trueRemote',
     'analysed',
     'positiveKeywordMatch',
@@ -384,63 +395,70 @@ function parseDate(value?: string | null): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function jobKey(job: Job): string {
+function jobKey(job: JobWithUserStateRead): string {
   if (job.id != null) return String(job.id);
   return job.sourceUrl;
 }
 
-function loadTriage() {
+function loadShortlist() {
   try {
-    const raw = window.localStorage.getItem(TRIAGE_STORAGE_KEY);
+    const raw = window.localStorage.getItem(SHORTLIST_STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw) as Record<string, TriageStatus>;
-    triage.value = parsed || {};
+    shortlist.value = parsed || {};
   } catch {
-    triage.value = {};
+    shortlist.value = {};
   }
 }
 
-function persistTriage() {
-  window.localStorage.setItem(TRIAGE_STORAGE_KEY, JSON.stringify(triage.value));
+function persistShortlist() {
+  window.localStorage.setItem(
+    SHORTLIST_STORAGE_KEY,
+    JSON.stringify(shortlist.value)
+  );
 }
 
-function setTriage(job: Job, status: TriageStatus) {
+function setShortlist(job: JobWithUserStateRead) {
   const key = jobKey(job);
-  triage.value = {
-    ...triage.value,
-    [key]: status,
-  };
-  persistTriage();
+  const next = { ...shortlist.value };
+  if (next[key]) {
+    delete next[key];
+  } else {
+    next[key] = 'shortlist';
+  }
+  shortlist.value = next;
+  persistShortlist();
 }
 
-function triageLabel(job: Job): string | null {
-  const status = triage.value[jobKey(job)];
-  if (!status) return null;
-  if (status === 'applied') return 'Applied';
+function triageLabel(job: JobWithUserStateRead): string | null {
+  if (job.ignored) return 'Ignored';
+  if (job.applied) return 'Applied';
+  const status = shortlist.value[jobKey(job)];
   if (status === 'shortlist') return 'Shortlist';
-  return 'Ignored';
+  return null;
 }
 
-function triageColor(job: Job): string {
-  const status = triage.value[jobKey(job)];
-  if (status === 'applied') return 'positive';
+function triageColor(job: JobWithUserStateRead): string {
+  if (job.ignored) return 'negative';
+  if (job.applied) return 'positive';
+  const status = shortlist.value[jobKey(job)];
   if (status === 'shortlist') return 'indigo';
-  return 'negative';
+  return 'grey-6';
 }
 
-function listingRemoteLabel(job: Job): string | null {
+function listingRemoteLabel(job: JobWithUserStateRead): string | null {
   if (job.listingRemote === RemoteStatus.ONSITE) return 'Onsite';
   if (job.listingRemote === RemoteStatus.REMOTE) return 'Remote';
   if (job.listingRemote === RemoteStatus.HYBRID) return 'Hybrid';
   return null;
 }
 
-function locationLabel(job: Job): string {
+function locationLabel(job: JobWithUserStateRead): string {
   const parts = [job.country, job.city].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : 'Location unknown';
 }
 
-function dateLabel(job: Job): string {
+function dateLabel(job: JobWithUserStateRead): string {
   const rawDate = job.listingDate ?? job.createdAt;
   if (!rawDate) return 'Date not set';
   const parsed = parseDate(rawDate);
@@ -450,6 +468,55 @@ function dateLabel(job: Job): string {
     Math.floor((Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24))
   );
   return `${parsed.toLocaleDateString()} (${diffDays}d ago)`;
+}
+
+function shouldRemoveAfterState(state: { applied: boolean; ignored: boolean }): boolean {
+  if (state.applied && filters.applied !== true) return true;
+  if (state.ignored && filters.ignored !== true) return true;
+  return false;
+}
+
+function updateJobStateInLists(jobId: number, state: { applied: boolean; ignored: boolean }) {
+  const updateList = (list: JobWithUserStateRead[]) => {
+    const index = list.findIndex((job) => job.id === jobId);
+    if (index === -1) return;
+    list[index] = {
+      ...list[index],
+      applied: state.applied,
+      ignored: state.ignored,
+    };
+  };
+  updateList(jobs.value);
+  updateList(jobStore.jobs);
+}
+
+function removeJobFromLists(jobId: number) {
+  jobs.value = jobs.value.filter((job) => job.id !== jobId);
+  jobStore.jobs = jobStore.jobs.filter((job) => job.id !== jobId);
+}
+
+async function markApplied(job: JobWithUserStateRead) {
+  if (job.id == null || job.applied || job.ignored) return;
+  const response = await jobStore.updateJobState(job.id, {
+    applied: true,
+  });
+  if (!response) return;
+  updateJobStateInLists(job.id, response);
+  if (shouldRemoveAfterState(response)) {
+    removeJobFromLists(job.id);
+  }
+}
+
+async function markIgnored(job: JobWithUserStateRead) {
+  if (job.id == null || job.ignored) return;
+  const response = await jobStore.updateJobState(job.id, {
+    ignored: true,
+  });
+  if (!response) return;
+  updateJobStateInLists(job.id, response);
+  if (shouldRemoveAfterState(response)) {
+    removeJobFromLists(job.id);
+  }
 }
 
 function openLinkInNewTab(url: string) {

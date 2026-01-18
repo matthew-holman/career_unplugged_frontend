@@ -6,6 +6,7 @@ export type JobQueryFilters = {
   country?: string;
   city?: string;
   applied?: boolean;
+  ignored?: boolean;
   trueRemote?: boolean;
   analysed?: boolean;
   positiveKeywordMatch?: boolean;
@@ -28,6 +29,7 @@ const KEY_ALIASES: Record<keyof JobQueryFilters, string[]> = {
   country: ['country'],
   city: ['city'],
   applied: ['applied'],
+  ignored: ['ignored'],
   trueRemote: ['trueRemote', 'true_remote'],
   analysed: ['analysed'],
   positiveKeywordMatch: ['positiveKeywordMatch', 'positive_keyword_match'],
@@ -48,6 +50,7 @@ const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
   country: 'country',
   city: 'city',
   applied: 'applied',
+  ignored: 'ignored',
   trueRemote: 'true_remote',
   analysed: 'analysed',
   positiveKeywordMatch: 'positive_keyword_match',
@@ -64,6 +67,7 @@ const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
 
 const BOOLEAN_KEYS = new Set<keyof JobQueryFilters>([
   'applied',
+  'ignored',
   'trueRemote',
   'analysed',
   'positiveKeywordMatch',

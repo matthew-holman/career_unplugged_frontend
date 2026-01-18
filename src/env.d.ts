@@ -7,3 +7,13 @@ declare namespace NodeJS {
     VUE_ROUTER_BASE: string | undefined;
   }
 }
+
+interface ImportMetaEnv {
+  readonly VITE_DEFAULT_USER_ID?: string;
+  readonly VITE_AUTH_TOKEN?: string;
+  readonly VITE_AUTH_HEADER?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

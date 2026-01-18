@@ -6,7 +6,7 @@
 import type { RemoteStatus } from './RemoteStatus';
 import type { Source } from './Source';
 
-export type Job = {
+export type JobWithUserStateRead = {
     createdAt?: string;
     updatedAt?: (string | null);
     deletedAt?: (string | null);
@@ -14,7 +14,6 @@ export type Job = {
     company: string;
     country: (string | null);
     city?: (string | null);
-    applied?: boolean;
     listingRemote?: (RemoteStatus | null);
     listingDate?: (string | null);
     trueRemote?: (boolean | null);
@@ -27,6 +26,8 @@ export type Job = {
     negativeKeywordMatch?: boolean;
     source?: Source;
     sourceUrl: string;
-    id?: number;
+    id: number;
+    applied?: boolean;
+    ignored?: boolean;
 };
 

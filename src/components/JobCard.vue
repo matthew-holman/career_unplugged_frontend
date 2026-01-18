@@ -97,6 +97,7 @@
               dense
               no-caps
               label="Mark Applied"
+              :disable="job.applied || job.ignored"
               @click="$emit('applied')"
             />
             <q-btn
@@ -112,6 +113,7 @@
               no-caps
               color="negative"
               label="Ignore"
+              :disable="job.ignored"
               @click="$emit('ignore')"
             />
           </div>
@@ -132,7 +134,7 @@ import {
   QChip,
   QSpace,
 } from 'quasar';
-import { Job } from 'src/client/scraper';
+import { JobWithUserStateRead } from 'src/client/scraper';
 
 defineEmits<{
   (event: 'open'): void;
@@ -142,7 +144,7 @@ defineEmits<{
 }>();
 
 const props = defineProps<{
-  job: Job;
+  job: JobWithUserStateRead;
   triageLabel?: string | null;
   triageColor?: string;
   locationLabel: string;

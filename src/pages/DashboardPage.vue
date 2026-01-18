@@ -77,7 +77,8 @@ import {
   QSpace,
 } from 'quasar';
 import { QTableProps } from 'quasar';
-import { DashboardService, type JobSummary, RemoteStatus } from 'src/client/scraper';
+import { type JobSummary, RemoteStatus } from 'src/client/scraper';
+import { fetchJobsSummary } from 'src/api/dashboard';
 import KpiCard from 'src/components/KpiCard.vue';
 import DashboardWidgetCard from 'src/components/DashboardWidgetCard.vue';
 
@@ -85,7 +86,7 @@ const router = useRouter();
 const summary = ref<JobSummary | null>(null);
 
 onMounted(() => {
-  DashboardService.jobsSummaryDashboardJobsSummaryGet().then((data) => {
+  fetchJobsSummary().then((data) => {
     summary.value = data;
   });
 });
