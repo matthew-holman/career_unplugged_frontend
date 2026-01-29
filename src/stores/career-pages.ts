@@ -5,8 +5,8 @@ import {
   ApiError,
   CareerPageRead,
   CareerPageCreate,
-  CareerPagesService,
 } from 'src/client/scraper';
+import { createCareerPage, listCareerPages, updateCareerPage } from 'src/api/career-pages';
 import { useMainStore as mainStore } from 'src/stores/main-store';
 
 
@@ -27,7 +27,7 @@ export const useCareerPagesStore = defineStore('careerPagesStore', {
         color: 'primary',
       });
       try {
-        const response = await CareerPagesService.listCareerPagesCareerPagesGet();
+        const response = await listCareerPages();
         if (response) {
           this.pages = response;
           notification({
@@ -48,7 +48,7 @@ export const useCareerPagesStore = defineStore('careerPagesStore', {
         color: 'primary',
       });
       try {
-        const response = await CareerPagesService.createCareerPageCareerPagesPost(newPage);
+        const response = await createCareerPage(newPage);
         this.pages.push(response);
         notification({
           type: 'positive',
@@ -67,7 +67,7 @@ export const useCareerPagesStore = defineStore('careerPagesStore', {
         color: 'primary',
       });
       try {
-        const response = await CareerPagesService.updateCareerPageCareerPagesPageIdPut(id, update);
+        const response = await updateCareerPage(id, update);
         const index = this.pages.findIndex((p) => p.id === id);
         if (index !== -1) this.pages[index] = response;
         notification({
