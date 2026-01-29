@@ -12,4 +12,7 @@ export enum Source {
     LEVER = 'lever',
     RECRUITEE = 'recruitee',
     RIPPLING = 'rippling',
+    PERSONIO = 'personio',
+    HIBOB = 'hibob',
+    BAMBOO = 'bamboo',
 }

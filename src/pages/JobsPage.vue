@@ -3,6 +3,19 @@
     <div class="row items-center q-gutter-md q-mb-lg">
       <div class="text-h5 text-weight-medium">Jobs</div>
       <q-space />
+      <q-select
+        v-model="sourceModel"
+        :options="sourceOptions"
+        multiple
+        outlined
+        dense
+        clearable
+        emit-value
+        map-options
+        use-chips
+        label="Sources"
+        class="search-input"
+      />
       <q-input
         v-model="titleModel"
         outlined
@@ -142,9 +155,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
-import { QChip, QInput, QSpace } from 'quasar';
+import { QChip, QInput, QSelect, QSpace } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import { JobWithUserStateRead, RemoteStatus } from 'src/client/scraper';
+import { JobWithUserStateRead, RemoteStatus, Source } from 'src/client/scraper';
 import { JobQueryFilters, parseJobQuery, serializeJobQuery } from 'src/utils/jobQuery';
 import JobCard from 'src/components/JobCard.vue';
 
@@ -181,6 +194,26 @@ const titleModel = computed({
   get: () => filters.title ?? '',
   set: (value: string) => {
     filters.title = value ? value : undefined;
+  },
+});
+
+const sourceOptions = Object.values(Source).map((value) => ({
+  label: sourceLabel(value),
+  value,
+}));
+
+const sourceModel = computed<Source[]>({
+  get: () => {
+    const source = filters.source;
+    if (!source) return [];
+    return Array.isArray(source) ? source : [source];
+  },
+  set: (value) => {
+    if (!value || value.length === 0) {
+      filters.source = undefined;
+      return;
+    }
+    filters.source = value;
   },
 });
 
@@ -378,7 +411,7 @@ function isSameQuery(
   Object.keys(current).forEach((key) => {
     const value = current[key];
     if (Array.isArray(value)) {
-      if (value[0]) normalized[key] = value[0];
+      if (value.length > 0) normalized[key] = value.join(',');
       return;
     }
     if (typeof value === 'string') normalized[key] = value;
@@ -387,6 +420,31 @@ function isSameQuery(
   const currentKeys = Object.keys(normalized);
   if (nextKeys.length !== currentKeys.length) return false;
   return nextKeys.every((key) => normalized[key] === next[key]);
+}
+
+function sourceLabel(source: Source): string {
+  switch (source) {
+    case Source.LINKEDIN:
+      return 'LinkedIn';
+    case Source.TEAMTAILOR:
+      return 'Teamtailor';
+    case Source.GREENHOUSE_BOARD:
+      return 'Greenhouse board';
+    case Source.GREENHOUSE_EMBEDDED:
+      return 'Greenhouse embedded';
+    case Source.ASHBY:
+      return 'Ashby';
+    case Source.LEVER:
+      return 'Lever';
+    case Source.RECRUITEE:
+      return 'Recruitee';
+    case Source.RIPPLING:
+      return 'Rippling';
+    case Source.PERSONIO:
+      return 'Personio';
+    default:
+      return source;
+  }
 }
 
 function parseDate(value?: string | null): Date | null {

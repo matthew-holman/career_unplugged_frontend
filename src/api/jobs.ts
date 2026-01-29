@@ -20,7 +20,7 @@ export interface JobListParams {
   negativeKeywordMatch?: boolean;
   analysed?: boolean;
   listingRemote?: RemoteStatus;
-  source?: Source;
+  source?: Source | Source[];
   createdAtGte?: string;
   createdAtLte?: string;
   listingDateGte?: string;
@@ -31,6 +31,9 @@ export interface JobListParams {
 
 export function listJobs(params: JobListParams): Promise<JobWithUserStateRead[]> {
   const userId = getDefaultUserId();
+  const sourceParam = Array.isArray(params.source)
+    ? params.source.join(',')
+    : params.source;
   return JobService.listJobsJobGet(
     params.title,
     params.company,
@@ -43,7 +46,7 @@ export function listJobs(params: JobListParams): Promise<JobWithUserStateRead[]>
     params.trueRemote,
     params.analysed,
     params.listingRemote,
-    params.source,
+    sourceParam as Source | undefined,
     params.createdAtGte,
     params.createdAtLte,
     params.listingDateGte,

@@ -11,7 +11,7 @@ export type JobQueryFilters = {
   analysed?: boolean;
   positiveKeywordMatch?: boolean;
   negativeKeywordMatch?: boolean;
-  source?: Source;
+  source?: Source | Source[];
   listingRemote?: RemoteStatus;
   createdAtGte?: string;
   createdAtLte?: string;
@@ -105,10 +105,12 @@ function parseRemoteStatus(value: string | undefined): RemoteStatus | undefined 
   return undefined;
 }
 
-function parseSource(value: string | undefined): Source | undefined {
-  if (!value) return undefined;
-  const allowed = Object.values(Source) as string[];
-  return allowed.includes(value) ? (value as Source) : undefined;
+function parseSourceList(values: string[]): Source[] {
+  if (values.length === 0) return [];
+  const allowed = new Set(Object.values(Source) as string[]);
+  return values
+    .map((value) => value.trim())
+    .filter((value) => value && allowed.has(value)) as Source[];
 }
 
 function getAliasedValue(
@@ -153,8 +155,19 @@ export function parseJobQuery(
     }
 
     if (key === 'source') {
-      const parsed = parseSource(raw);
-      if (parsed) setFilter('source', parsed);
+      const alias = aliases.find((entry) => query[entry] !== undefined);
+      const rawValue = alias ? query[alias] : raw;
+      const rawList = Array.isArray(rawValue)
+        ? rawValue
+        : rawValue
+          ? String(rawValue).split(',')
+          : [];
+      const parsed = parseSourceList(rawList);
+      if (parsed.length === 1) {
+        setFilter('source', parsed[0]);
+      } else if (parsed.length > 1) {
+        setFilter('source', parsed);
+      }
       return;
     }
 
@@ -180,6 +193,12 @@ export function serializeJobQuery(filters: JobQueryFilters): Record<string, stri
     const serializedKey = SERIALIZE_KEYS[key as keyof JobQueryFilters];
     if (typeof value === 'boolean') {
       query[serializedKey] = value ? 'true' : 'false';
+      return;
+    }
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        query[serializedKey] = value.join(',');
+      }
       return;
     }
     query[serializedKey] = String(value);

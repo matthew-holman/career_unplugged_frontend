@@ -3,9 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum RemoteStatus {
-    UNKNOWN = 'UNKNOWN',
-    ONSITE = 'ONSITE',
-    HYBRID = 'HYBRID',
-    REMOTE = 'REMOTE',
-}
+export type LinkedinSyncRequest = {
+};
+

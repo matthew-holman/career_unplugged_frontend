@@ -26,6 +26,7 @@ export type JobWithUserStateRead = {
     negativeKeywordMatch?: boolean;
     source?: Source;
     sourceUrl: string;
+    careerPageId?: (number | null);
     id: number;
     applied?: boolean;
     ignored?: boolean;
