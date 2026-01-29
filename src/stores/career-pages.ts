@@ -6,7 +6,12 @@ import {
   CareerPageRead,
   CareerPageCreate,
 } from 'src/client/scraper';
-import { createCareerPage, listCareerPages, updateCareerPage } from 'src/api/career-pages';
+import {
+  createCareerPage,
+  listCareerPages,
+  updateCareerPage,
+  type CareerPageListParams,
+} from 'src/api/career-pages';
 import { useMainStore as mainStore } from 'src/stores/main-store';
 
 
@@ -20,14 +25,14 @@ export const useCareerPagesStore = defineStore('careerPagesStore', {
   }),
 
   actions: {
-    async listPages() {
+    async listPages(params?: CareerPageListParams) {
       const notification = Notify.create({
         message: 'Fetching Career Pages',
         type: 'ongoing',
         color: 'primary',
       });
       try {
-        const response = await listCareerPages();
+        const response = await listCareerPages(params);
         if (response) {
           this.pages = response;
           notification({
