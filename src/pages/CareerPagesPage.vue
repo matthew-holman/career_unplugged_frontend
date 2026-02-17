@@ -80,6 +80,28 @@
             />
           </div>
         </div>
+        <div class="row q-col-gutter-md items-end q-mt-sm">
+          <div class="col-12 col-md-2">
+            <q-input
+              v-model.number="maxAgeHours"
+              label="Max Age (hours)"
+              type="number"
+              filled
+              min="1"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-toggle v-model="includeInactive" label="Include inactive" />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-btn
+              color="primary"
+              label="Sync ATS"
+              :disable="selectedRows.length === 0"
+              @click="triggerSyncAts"
+            />
+          </div>
+        </div>
       </q-card-section>
 
       <q-separator spaced />
@@ -130,6 +152,17 @@
               {{ formatTimestamp(props.row.last_synced_at) }}
             </q-td>
           </template>
+          <template #body-cell-actions="props">
+            <q-td :props="props">
+              <q-btn
+                color="primary"
+                flat
+                dense
+                label="View jobs"
+                @click="viewJobsForCareerPage(props.row)"
+              />
+            </q-td>
+          </template>
         </q-table>
       </q-card-section>
     </q-card>
@@ -141,8 +174,9 @@ import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { QTableProps } from 'quasar';
 import { useCareerPagesStore } from 'stores/career-pages';
-import { CareerPageCreate, type CareerPageRead } from 'src/client/scraper';
+import { CareerPageCreate, type CareerPageRead, type WorkerRunRead } from 'src/client/scraper';
 import { type CareerPageListParams } from 'src/api/career-pages';
+import { syncAts } from 'src/api/sync';
 
 type CareerPageRow = CareerPageRead & {
   last_synced_at?: string | null;
@@ -210,6 +244,9 @@ const lastStatusCodeModel = computed<number | null>({
 });
 
 const selectedRows = ref<CareerPageRow[]>([]);
+const maxAgeHours = ref(24);
+const includeInactive = ref(false);
+const lastWorkerRun = ref<WorkerRunRead | null>(null);
 
 const columns: QTableProps['columns'] = [
   { name: 'id', label: 'ID', field: 'id', align: 'left' },
@@ -227,6 +264,12 @@ const columns: QTableProps['columns'] = [
     label: 'Last Status',
     field: 'last_status_code',
     align: 'left',
+  },
+  {
+    name: 'actions',
+    label: 'Actions',
+    field: 'id',
+    align: 'right',
   },
 ];
 
@@ -281,6 +324,23 @@ async function addCareerPage() {
   await careerPagesStore.addPage(newPage);
   newPage.url = '';
   newPage.company_name = '';
+}
+
+async function triggerSyncAts(): Promise<void> {
+  const careerPageIds = selectedRows.value.map((row) => row.id);
+  const request = {
+    max_age_hours: maxAgeHours.value,
+    include_inactive: includeInactive.value,
+    ...(careerPageIds.length > 0 ? { career_page_ids: careerPageIds } : {}),
+  };
+  lastWorkerRun.value = await syncAts(request);
+}
+
+function viewJobsForCareerPage(row: CareerPageRow) {
+  router.push({
+    path: '/jobs',
+    query: { career_page_id: String(row.id) },
+  });
 }
 
 function normalizeString(value?: string): string | undefined {

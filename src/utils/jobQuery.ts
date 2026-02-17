@@ -5,6 +5,7 @@ export type JobQueryFilters = {
   company?: string;
   country?: string;
   city?: string;
+  careerPageId?: number;
   applied?: boolean;
   ignored?: boolean;
   trueRemote?: boolean;
@@ -28,6 +29,7 @@ const KEY_ALIASES: Record<keyof JobQueryFilters, string[]> = {
   company: ['company'],
   country: ['country'],
   city: ['city'],
+  careerPageId: ['careerPageId', 'career_page_id'],
   applied: ['applied'],
   ignored: ['ignored'],
   trueRemote: ['trueRemote', 'true_remote'],
@@ -49,6 +51,7 @@ const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
   company: 'company',
   country: 'country',
   city: 'city',
+  careerPageId: 'career_page_id',
   applied: 'applied',
   ignored: 'ignored',
   trueRemote: 'true_remote',
@@ -141,6 +144,12 @@ export function parseJobQuery(
     const aliases = KEY_ALIASES[key];
     const raw = getAliasedValue(query, aliases);
     if (raw === undefined || raw === '') return;
+
+    if (key === 'careerPageId') {
+      const parsed = parseNumber(raw);
+      if (parsed !== undefined) setFilter('careerPageId', parsed);
+      return;
+    }
 
     if (key === 'listingRemote') {
       const parsed = parseRemoteStatus(raw);

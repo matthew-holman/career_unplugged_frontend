@@ -29,6 +29,16 @@
 
     <div class="row q-col-gutter-sm q-mb-xl">
       <q-chip
+        v-if="hasCareerPageFilter"
+        removable
+        color="primary"
+        text-color="dark"
+        class="cu-chip"
+        @remove="clearCareerPageFilter"
+      >
+        Career page: {{ careerPageLabel }}
+      </q-chip>
+      <q-chip
         clickable
         :outline="!isToReviewActive"
         :color="isToReviewActive ? 'primary' : 'grey-4'"
@@ -157,7 +167,13 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import { QChip, QInput, QSelect, QSpace } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import { JobWithUserStateRead, RemoteStatus, Source } from 'src/client/scraper';
+import {
+  JobWithUserStateRead,
+  RemoteStatus,
+  Source,
+  type CareerPageRead,
+} from 'src/client/scraper';
+import { getCareerPage } from 'src/api/career-pages';
 import { JobQueryFilters, parseJobQuery, serializeJobQuery } from 'src/utils/jobQuery';
 import JobCard from 'src/components/JobCard.vue';
 
@@ -169,11 +185,14 @@ const route = useRoute();
 const router = useRouter();
 const jobs = ref<JobWithUserStateRead[]>([]);
 const shortlist = ref<Record<string, TriageStatus>>({});
+const careerPage = ref<CareerPageRead | null>(null);
+const careerPageFetchToken = ref(0);
 const filters = reactive<JobQueryFilters>({
   title: undefined,
   company: undefined,
   country: undefined,
   city: undefined,
+  careerPageId: undefined,
   applied: undefined,
   ignored: undefined,
   trueRemote: undefined,
@@ -289,6 +308,7 @@ async function fetchJobs(): Promise<void> {
     company: filters.company,
     country: filters.country,
     city: filters.city,
+    careerPageId: filters.careerPageId,
     applied: filters.applied,
     ignored: filters.ignored,
     trueRemote: filters.trueRemote,
@@ -314,6 +334,17 @@ const topMatches = computed(() => visibleJobs.value);
 const isToReviewActive = computed(
   () => filters.applied === false && filters.ignored === false
 );
+const hasCareerPageFilter = computed(() => filters.careerPageId != null);
+const careerPageLabel = computed(() => {
+  if (!filters.careerPageId) return '';
+  const page = careerPage.value;
+  if (!page) return String(filters.careerPageId);
+  const name = page.company_name?.trim();
+  if (name) return name;
+  const url = page.url?.trim();
+  if (url) return url;
+  return String(filters.careerPageId);
+});
 const isRemoteActive = computed(() => filters.trueRemote === true);
 const isSwedenActive = computed(
   () => (filters.country || '').toLowerCase() === 'sweden'
@@ -371,12 +402,18 @@ function togglePositiveMatch() {
     filters.positiveKeywordMatch === true ? undefined : true;
 }
 
+function clearCareerPageFilter() {
+  filters.careerPageId = undefined;
+  careerPage.value = null;
+}
+
 function applyFilters(next: JobQueryFilters): boolean {
   const keys: (keyof JobQueryFilters)[] = [
     'title',
     'company',
     'country',
     'city',
+    'careerPageId',
     'applied',
     'ignored',
     'trueRemote',
@@ -452,6 +489,27 @@ function parseDate(value?: string | null): Date | null {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
+
+watch(
+  () => filters.careerPageId,
+  async (careerPageId) => {
+    const token = careerPageFetchToken.value + 1;
+    careerPageFetchToken.value = token;
+    if (!careerPageId) {
+      careerPage.value = null;
+      return;
+    }
+    try {
+      const response = await getCareerPage(careerPageId);
+      if (careerPageFetchToken.value !== token) return;
+      careerPage.value = response;
+    } catch {
+      if (careerPageFetchToken.value !== token) return;
+      careerPage.value = null;
+    }
+  },
+  { immediate: true }
+);
 
 function jobKey(job: JobWithUserStateRead): string {
   if (job.id != null) return String(job.id);

@@ -47,3 +47,8 @@ export function updateCareerPage(
   const userId = getDefaultUserId();
   return CareerPagesService.updateCareerPageCareerPagesPageIdPut(id, update, userId);
 }
+
+export function getCareerPage(id: number): Promise<CareerPageRead> {
+  const userId = getDefaultUserId();
+  return CareerPagesService.getCareerPageCareerPagesPageIdGet(id, userId);
+}
