@@ -5,6 +5,7 @@
 import type { JobWithUserStateRead } from '../models/JobWithUserStateRead';
 import type { RemoteStatus } from '../models/RemoteStatus';
 import type { Source } from '../models/Source';
+import type { TagCategory } from '../models/TagCategory';
 import type { UserJobStateRead } from '../models/UserJobStateRead';
 import type { UserJobStateUpdate } from '../models/UserJobStateUpdate';
 
@@ -52,8 +53,6 @@ export class JobService {
      * @param city
      * @param applied
      * @param ignored
-     * @param positiveKeywordMatch
-     * @param negativeKeywordMatch
      * @param trueRemote
      * @param analysed
      * @param listingRemote
@@ -64,6 +63,9 @@ export class JobService {
      * @param listingDateLte
      * @param euRemote
      * @param recentDays
+     * @param tags
+     * @param tagCategory
+     * @param minRemoteScore
      * @param xUserId
      * @returns JobWithUserStateRead Successful Response
      * @throws ApiError
@@ -75,8 +77,6 @@ export class JobService {
         city?: (string | null),
         applied: boolean = false,
         ignored: boolean = false,
-        positiveKeywordMatch?: (boolean | null),
-        negativeKeywordMatch?: (boolean | null),
         trueRemote?: (boolean | null),
         analysed?: (boolean | null),
         listingRemote?: (RemoteStatus | null),
@@ -87,6 +87,9 @@ export class JobService {
         listingDateLte?: (string | null),
         euRemote?: (boolean | null),
         recentDays?: (number | null),
+        tags?: (Array<string> | null),
+        tagCategory?: (TagCategory | null),
+        minRemoteScore?: (number | null),
         xUserId?: (number | null),
     ): CancelablePromise<Array<JobWithUserStateRead>> {
         return __request(OpenAPI, {
@@ -102,8 +105,6 @@ export class JobService {
                 'city': city,
                 'applied': applied,
                 'ignored': ignored,
-                'positive_keyword_match': positiveKeywordMatch,
-                'negative_keyword_match': negativeKeywordMatch,
                 'true_remote': trueRemote,
                 'analysed': analysed,
                 'listing_remote': listingRemote,
@@ -114,6 +115,9 @@ export class JobService {
                 'listing_date_lte': listingDateLte,
                 'eu_remote': euRemote,
                 'recent_days': recentDays,
+                'tags': tags,
+                'tag_category': tagCategory,
+                'min_remote_score': minRemoteScore,
             },
             errors: {
                 400: `Bad Request`,

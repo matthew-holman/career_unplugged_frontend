@@ -88,16 +88,6 @@
       >
         New 7d
       </q-chip>
-      <q-chip
-        clickable
-        :outline="!isPositiveMatchActive"
-        :color="isPositiveMatchActive ? 'primary' : 'grey-4'"
-        text-color="dark"
-        class="cu-chip"
-        @click="togglePositiveMatch"
-      >
-        Positive matches
-      </q-chip>
     </div>
 
     <section class="q-mb-xl">
@@ -111,7 +101,7 @@
       <div class="row q-col-gutter-lg">
         <div
           v-for="job in topMatches"
-          :key="job.id ?? job.sourceUrl"
+          :key="job.id ?? job.atsSourceUrl ?? job.linkedinSourceUrl"
           class="col-12 col-sm-6 col-lg-4 col-xl-3"
         >
           <JobCard
@@ -121,7 +111,7 @@
             :location-label="locationLabel(job)"
             :listing-remote-label="listingRemoteLabel(job)"
             :date-label="dateLabel(job)"
-            @open="openLinkInNewTab(job.sourceUrl)"
+            @open="openLinkInNewTab(sourceUrl(job))"
             @applied="markApplied(job)"
             @shortlist="setShortlist(job)"
             @ignore="markIgnored(job)"
@@ -141,7 +131,7 @@
       <div class="row q-col-gutter-lg">
         <div
           v-for="job in visibleJobs"
-          :key="`all-${job.id ?? job.sourceUrl}`"
+          :key="`all-${job.id ?? sourceUrl(job)}`"
           class="col-12 col-sm-6 col-lg-4 col-xl-3"
         >
           <JobCard
@@ -151,7 +141,7 @@
             :location-label="locationLabel(job)"
             :listing-remote-label="listingRemoteLabel(job)"
             :date-label="dateLabel(job)"
-            @open="openLinkInNewTab(job.sourceUrl)"
+            @open="openLinkInNewTab(sourceUrl(job))"
             @applied="markApplied(job)"
             @shortlist="setShortlist(job)"
             @ignore="markIgnored(job)"
@@ -164,15 +154,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { useRoute, useRouter, type LocationQuery } from 'vue-router';
+import { type LocationQuery, useRoute, useRouter } from 'vue-router';
 import { QChip, QInput, QSelect, QSpace } from 'quasar';
 import { useJobStore } from 'stores/jobs';
-import {
-  JobWithUserStateRead,
-  RemoteStatus,
-  Source,
-  type CareerPageRead,
-} from 'src/client/scraper';
+import { type CareerPageRead, JobWithUserStateRead, RemoteStatus, Source } from 'src/client/scraper';
 import { getCareerPage } from 'src/api/career-pages';
 import { JobQueryFilters, parseJobQuery, serializeJobQuery } from 'src/utils/jobQuery';
 import JobCard from 'src/components/JobCard.vue';
@@ -197,8 +182,6 @@ const filters = reactive<JobQueryFilters>({
   ignored: undefined,
   trueRemote: undefined,
   analysed: undefined,
-  positiveKeywordMatch: undefined,
-  negativeKeywordMatch: undefined,
   source: undefined,
   listingRemote: undefined,
   createdAtGte: undefined,
@@ -313,8 +296,6 @@ async function fetchJobs(): Promise<void> {
     ignored: filters.ignored,
     trueRemote: filters.trueRemote,
     analysed: filters.analysed,
-    positiveKeywordMatch: filters.positiveKeywordMatch,
-    negativeKeywordMatch: filters.negativeKeywordMatch,
     source: filters.source,
     listingRemote: filters.listingRemote,
     createdAtGte: filters.createdAtGte,
@@ -355,9 +336,6 @@ const isNew7dActive = computed(
     filters.recentDays === 7 ||
     Boolean(filters.createdAtGte && filters.createdAtLte)
 );
-const isPositiveMatchActive = computed(
-  () => filters.positiveKeywordMatch === true
-);
 
 function toggleToReview() {
   if (filters.applied === false && filters.ignored === false) {
@@ -397,11 +375,6 @@ function toggleNew7d() {
   filters.listingDateLte = undefined;
 }
 
-function togglePositiveMatch() {
-  filters.positiveKeywordMatch =
-    filters.positiveKeywordMatch === true ? undefined : true;
-}
-
 function clearCareerPageFilter() {
   filters.careerPageId = undefined;
   careerPage.value = null;
@@ -418,8 +391,6 @@ function applyFilters(next: JobQueryFilters): boolean {
     'ignored',
     'trueRemote',
     'analysed',
-    'positiveKeywordMatch',
-    'negativeKeywordMatch',
     'source',
     'listingRemote',
     'createdAtGte',
@@ -440,10 +411,7 @@ function applyFilters(next: JobQueryFilters): boolean {
   return changed;
 }
 
-function isSameQuery(
-  next: Record<string, string>,
-  current: LocationQuery
-) {
+function isSameQuery(next: Record<string, string>, current: LocationQuery) {
   const normalized: Record<string, string> = {};
   Object.keys(current).forEach((key) => {
     const value = current[key];
@@ -479,6 +447,14 @@ function sourceLabel(source: Source): string {
       return 'Rippling';
     case Source.PERSONIO:
       return 'Personio';
+    case Source.HIBOB:
+      return 'HiBob';
+    case Source.BAMBOO:
+      return 'BambooHR';
+    case Source.WORKABLE:
+      return 'Workable';
+    case Source.JOBYLON:
+      return 'Jobylon';
     default:
       return source;
   }
@@ -513,7 +489,7 @@ watch(
 
 function jobKey(job: JobWithUserStateRead): string {
   if (job.id != null) return String(job.id);
-  return job.sourceUrl;
+  return sourceUrl(job);
 }
 
 function loadShortlist() {
@@ -586,13 +562,19 @@ function dateLabel(job: JobWithUserStateRead): string {
   return `${parsed.toLocaleDateString()} (${diffDays}d ago)`;
 }
 
-function shouldRemoveAfterState(state: { applied: boolean; ignored: boolean }): boolean {
+function shouldRemoveAfterState(state: {
+  applied: boolean;
+  ignored: boolean;
+}): boolean {
   if (state.applied && filters.applied !== true) return true;
   if (state.ignored && filters.ignored !== true) return true;
   return false;
 }
 
-function updateJobStateInLists(jobId: number, state: { applied: boolean; ignored: boolean }) {
+function updateJobStateInLists(
+  jobId: number,
+  state: { applied: boolean; ignored: boolean }
+) {
   const updateList = (list: JobWithUserStateRead[]) => {
     const index = list.findIndex((job) => job.id === jobId);
     if (index === -1) return;
@@ -637,5 +619,11 @@ async function markIgnored(job: JobWithUserStateRead) {
 
 function openLinkInNewTab(url: string) {
   window.open(url, '_blank');
+}
+function sourceUrl(job: JobWithUserStateRead): string {
+  if (job.source == Source.LINKEDIN){
+    return job.linkedinSourceUrl ?? '';
+  }
+  return job.atsSourceUrl ?? ''
 }
 </script>

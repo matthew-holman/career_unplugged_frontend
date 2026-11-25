@@ -11,6 +11,5 @@ export type JobSummary = {
     eu_remote: number;
     sweden: number;
     new7d: number;
-    positive_matches: number;
 };
 

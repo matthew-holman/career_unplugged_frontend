@@ -43,24 +43,6 @@
           {{ listingRemoteLabel }}
         </q-chip>
         <q-chip
-          v-if="job.positiveKeywordMatch"
-          dense
-          color="green-1"
-          text-color="green-9"
-          class="cu-chip"
-        >
-          Positive match
-        </q-chip>
-        <q-chip
-          v-if="job.negativeKeywordMatch"
-          dense
-          color="red-1"
-          text-color="red-9"
-          class="cu-chip"
-        >
-          Negative match
-        </q-chip>
-        <q-chip
           v-if="job.analysed"
           dense
           color="amber-1"
@@ -156,8 +138,6 @@ const hasChips = computed(() => {
   return Boolean(
     props.job.trueRemote ||
       props.listingRemoteLabel ||
-      props.job.positiveKeywordMatch ||
-      props.job.negativeKeywordMatch ||
       props.job.analysed
   );
 });

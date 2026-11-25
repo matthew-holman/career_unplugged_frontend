@@ -10,8 +10,6 @@ export type JobQueryFilters = {
   ignored?: boolean;
   trueRemote?: boolean;
   analysed?: boolean;
-  positiveKeywordMatch?: boolean;
-  negativeKeywordMatch?: boolean;
   source?: Source | Source[];
   listingRemote?: RemoteStatus;
   createdAtGte?: string;
@@ -34,8 +32,6 @@ const KEY_ALIASES: Record<keyof JobQueryFilters, string[]> = {
   ignored: ['ignored'],
   trueRemote: ['trueRemote', 'true_remote'],
   analysed: ['analysed'],
-  positiveKeywordMatch: ['positiveKeywordMatch', 'positive_keyword_match'],
-  negativeKeywordMatch: ['negativeKeywordMatch', 'negative_keyword_match'],
   source: ['source'],
   listingRemote: ['listingRemote', 'listing_remote'],
   createdAtGte: ['createdAtGte', 'created_at_gte'],
@@ -56,8 +52,6 @@ const SERIALIZE_KEYS: Record<keyof JobQueryFilters, string> = {
   ignored: 'ignored',
   trueRemote: 'true_remote',
   analysed: 'analysed',
-  positiveKeywordMatch: 'positive_keyword_match',
-  negativeKeywordMatch: 'negative_keyword_match',
   source: 'source',
   listingRemote: 'listing_remote',
   createdAtGte: 'created_at_gte',
@@ -73,8 +67,6 @@ const BOOLEAN_KEYS = new Set<keyof JobQueryFilters>([
   'ignored',
   'trueRemote',
   'analysed',
-  'positiveKeywordMatch',
-  'negativeKeywordMatch',
   'euRemote',
 ]);
 

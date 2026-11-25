@@ -19,8 +19,6 @@ export interface JobListParams {
   applied?: boolean;
   ignored?: boolean;
   trueRemote?: boolean;
-  positiveKeywordMatch?: boolean;
-  negativeKeywordMatch?: boolean;
   analysed?: boolean;
   listingRemote?: RemoteStatus;
   source?: Source | Source[];
@@ -53,8 +51,6 @@ export function listJobs(params: JobListParams): Promise<JobWithUserStateRead[]>
       career_page_id: params.careerPageId,
       applied,
       ignored,
-      positive_keyword_match: params.positiveKeywordMatch,
-      negative_keyword_match: params.negativeKeywordMatch,
       true_remote: params.trueRemote,
       analysed: params.analysed,
       listing_remote: params.listingRemote,

@@ -15,4 +15,6 @@ export enum Source {
     PERSONIO = 'personio',
     HIBOB = 'hibob',
     BAMBOO = 'bamboo',
+    WORKABLE = 'workable',
+    JOBYLON = 'jobylon',
 }

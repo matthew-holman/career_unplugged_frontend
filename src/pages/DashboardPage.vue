@@ -19,9 +19,6 @@
       <div class="col-12 col-sm-6 col-lg-3">
         <KpiCard label="New 7d" :value="kpi.new7d" />
       </div>
-      <div class="col-12 col-sm-6 col-lg-3">
-        <KpiCard label="Positive matches" :value="kpi.positiveMatches" />
-      </div>
     </div>
 
     <div class="row q-col-gutter-lg">
@@ -110,7 +107,6 @@ const kpi = computed(() => {
     euRemote: summary.value?.eu_remote ?? 0,
     sweden: summary.value?.sweden ?? 0,
     new7d: summary.value?.new7d ?? 0,
-    positiveMatches: summary.value?.positive_matches ?? 0,
   };
 });
 
